@@ -1,0 +1,321 @@
+/* Frontend/src/components/WaitingRoom.css */
+
+.waiting-room-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.waiting-room-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 100%;
+}
+
+.room-title {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 2rem;
+}
+
+.room-code-section {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 15px;
+}
+
+.room-code-section p {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.code-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.code {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+  letter-spacing: 3px;
+  font-family: 'Courier New', monospace;
+}
+
+.btn-copy {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.btn-copy:hover {
+  background: #5568d3;
+  transform: scale(1.05);
+}
+
+.players-section {
+  margin-bottom: 25px;
+}
+
+.players-section h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: #f9fafb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.player-item:hover {
+  background: #f3f4f6;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-avatar-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #667eea;
+}
+
+.player-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.player-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-you {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-kick {
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-kick:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.game-info-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.info-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  border: 2px solid #e5e7eb;
+}
+
+.info-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.info-text {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.info-text strong {
+  color: #333;
+  font-size: 1.3rem;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.host-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.btn {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-settings {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-settings:hover {
+  background: #4b5563;
+  transform: scale(1.02);
+}
+
+.btn-start {
+  background: #10b981;
+  color: white;
+}
+
+.btn-start:hover:not(:disabled) {
+  background: #059669;
+  transform: scale(1.02);
+}
+
+.btn-start:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-vote {
+  background: #f59e0b;
+  color: white;
+}
+
+.btn-vote:hover {
+  background: #d97706;
+  transform: scale(1.02);
+}
+
+.warning-text {
+  text-align: center;
+  color: #ef4444;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+.waiting-message {
+  text-align: center;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.waiting-message p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.loading, .error {
+  text-align: center;
+  color: white;
+}
+
+.loading h2, .error h2 {
+  font-size: 1.8rem;
+}
+
+@media (max-width: 600px) {
+  .waiting-room-card {
+    padding: 20px;
+  }
+
+  .room-title {
+    font-size: 1.5rem;
+  }
+
+  .code {
+    font-size: 1.5rem;
+  }
+
+  .game-info-section {
+    grid-template-columns: 1fr;
+  }
+}
+/* Agregar al final de WaitingRoom.css */
+
+.time-remaining-badge {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 10px rgba(243, 156, 18, 0.3);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .time-remaining-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

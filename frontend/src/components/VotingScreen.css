@@ -1,0 +1,381 @@
+/* Frontend/src/components/VotingScreen.css */
+
+.voting-screen {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.voting-header {
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.voting-header h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.btn-start-voting {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-start-voting:hover {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+.voting-countdown {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  margin: 40px 0;
+}
+
+.voting-countdown .countdown-number {
+  font-size: 5rem;
+  font-weight: bold;
+  color: #667eea;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.voting-countdown p {
+  font-size: 1.3rem;
+  color: #666;
+}
+
+.voting-instruction {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.voting-instruction p {
+  margin: 5px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.vote-count {
+  font-weight: bold;
+  color: #667eea;
+  font-size: 1.2rem !important;
+}
+
+.players-voting-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 20px;
+}
+
+.player-vote-card {
+  background: white;
+  border: 3px solid transparent;
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.player-vote-card:not(.disabled):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: #667eea;
+}
+
+.player-vote-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.player-vote-card.selected {
+  border-color: #10b981;
+  background: #f0fdf4;
+  transform: scale(1.05);
+}
+
+.player-vote-card.voted {
+  border-color: #667eea;
+  background: #eef2ff;
+}
+
+.player-vote-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.player-vote-name {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 0;
+}
+
+.vote-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #10b981;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.vote-indicator.voted {
+  width: auto;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.vote-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: #ef4444;
+  color: white;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.btn-confirm-vote {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.btn-confirm-vote:hover {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+.waiting-votes {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.waiting-votes p {
+  color: #10b981;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Resultados de votación */
+.voting-results {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.voting-results h2 {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.eliminated-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  margin-bottom: 30px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.eliminated-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 5px solid #ef4444;
+}
+
+.eliminated-card h3 {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 10px 0;
+}
+
+.eliminated-votes {
+  font-size: 1.2rem;
+  color: #666;
+  margin: 10px 0;
+}
+
+.role-reveal {
+  margin-top: 20px;
+  padding: 15px 25px;
+  border-radius: 12px;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.role-reveal.impostor {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.role-reveal.civil {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.game-over, .game-continue {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  text-align: center;
+  margin-bottom: 20px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.game-over h3, .game-continue h3 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.game-over.victory h3 {
+  color: #10b981;
+}
+
+.game-over.defeat h3 {
+  color: #ef4444;
+}
+
+.game-continue h3 {
+  color: #f59e0b;
+}
+
+.game-over p, .game-continue p {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.host-decisions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.btn-continue, .btn-lobby {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.btn-continue {
+  background: #10b981;
+  color: white;
+}
+
+.btn-continue:hover {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+.btn-lobby {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-lobby:hover {
+  background: #4b5563;
+  transform: scale(1.05);
+}
+
+.waiting-host {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+}
+
+.waiting-host p {
+  color: #667eea;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .players-voting-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .voting-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .voting-countdown .countdown-number {
+    font-size: 4rem;
+  }
+}
