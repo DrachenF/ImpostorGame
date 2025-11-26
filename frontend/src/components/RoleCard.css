@@ -1,3 +1,4 @@
+/* Frontend/src/components/RoleCard.css */
 /* RoleCard.css - Versión con Flip y Responsive Mejorado */
 
 .rolecard-overlay {
@@ -281,33 +282,36 @@
   font-style: italic;
 }
 
+/* BOTÓN DE VOTACIÓN MEJORADO */
 .btn-vote-floating {
   position: fixed;
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  background: #DC2626;
-  color: white;
-  border: none;
+  background: #FFF;
+  color: #DC2626;
+  border: 3px solid #DC2626;
   padding: 18px 38px;
-  border-radius: 50px;
+  border-radius: 12px;
   font-size: 19px;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   letter-spacing: 0.5px;
 }
 
 .btn-vote-floating:hover {
-  background: #B91C1C;
-  transform: translateX(-50%) translateY(-4px);
-  box-shadow: 0 12px 40px rgba(220, 38, 38, 0.5);
+  background: #DC2626;
+  color: white;
+  box-shadow: 0 10px 35px rgba(220, 38, 38, 0.5);
+  transform: translateX(-50%) scale(1.05);
 }
 
 .btn-vote-floating:active {
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateX(-50%) scale(0.98);
+  box-shadow: 0 5px 20px rgba(220, 38, 38, 0.4);
 }
 
 /* RESPONSIVE - Desktop Grande (1440px+) */
@@ -551,6 +555,14 @@
     padding: 16px 32px;
     font-size: 17px;
   }
+  
+  .btn-vote-floating:hover {
+    transform: translateX(-50%) scale(1.05);
+  }
+  
+  .btn-vote-floating:active {
+    transform: translateX(-50%) scale(0.98);
+  }
 }
 
 /* RESPONSIVE - Móviles muy pequeños (< 320px) */
@@ -606,5 +618,13 @@
     bottom: 15px;
     padding: 12px 25px;
     font-size: 15px;
+  }
+  
+  .btn-vote-floating:hover {
+    transform: translateX(-50%) scale(1.05);
+  }
+  
+  .btn-vote-floating:active {
+    transform: translateX(-50%) scale(0.98);
   }
 }
