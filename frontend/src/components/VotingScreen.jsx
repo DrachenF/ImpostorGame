@@ -14,10 +14,29 @@ function VotingScreen({ roomId, playerId, roomData, gameState }) {
   const votingPhase = gameState.votingPhase;
   const myVote = votingPhase?.votes?.[playerId];
 
-  // Iniciar countdown automáticamente cuando se activa la votación
+  // Verificar victoria del impostor ANTES de la votación
   useEffect(() => {
-    if (votingPhase?.active && !countdownStarted && isHost) {
-      // El host inicia el countdown automáticamente
+    if (votingPhase?.active && !votingPhase?.countdownStarted && isHost) {
+      // Contar impostores y civiles actuales
+      const impostorCount = roomData.players.filter(p => 
+        gameState.playerRoles[p.id]?.isImpostor
+      ).length;
+      const civilCount = roomData.players.length - impostorCount;
+
+      // REGLA: Si impostores >= civiles, gana impostor
+      if (impostorCount >= civilCount) {
+        const markImpostorVictory = async () => {
+          const roomRef = doc(db, 'rooms', roomId);
+          await updateDoc(roomRef, {
+            'gameState.votingPhase.impostorVictory': true,
+            'gameState.votingPhase.showResults': true
+          });
+        };
+        markImpostorVictory();
+        return; // No iniciar countdown
+      }
+
+      // Si no hay victoria automática, iniciar countdown
       const startCountdown = async () => {
         const roomRef = doc(db, 'rooms', roomId);
         await updateDoc(roomRef, {
@@ -27,7 +46,7 @@ function VotingScreen({ roomId, playerId, roomData, gameState }) {
       };
       startCountdown();
     }
-  }, [votingPhase?.active, countdownStarted, isHost, roomId]);
+  }, [votingPhase?.active, countdownStarted, isHost, roomId, roomData, gameState]);
 
   // Countdown de votación
   useEffect(() => {
@@ -77,6 +96,11 @@ function VotingScreen({ roomId, playerId, roomData, gameState }) {
 
   // Si todos votaron, mostrar resultados
   if (allVoted && votingPhase?.showResults) {
+    return <VotingResults roomId={roomId} playerId={playerId} roomData={roomData} gameState={gameState} />;
+  }
+
+  // Si hay victoria automática del impostor, mostrar resultados
+  if (votingPhase?.impostorVictory && votingPhase?.showResults) {
     return <VotingResults roomId={roomId} playerId={playerId} roomData={roomData} gameState={gameState} />;
   }
 
@@ -167,6 +191,11 @@ function VotingResults({ roomId, playerId, roomData, gameState }) {
   const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
   const votingPhase = gameState.votingPhase;
   
+  // Verificar si es victoria automática del impostor
+  if (votingPhase?.impostorVictory) {
+    return <ImpostorAutoVictory roomId={roomId} playerId={playerId} isHost={isHost} />;
+  }
+
   // Calcular al jugador más votado
   const voteCounts = {};
   Object.values(votingPhase.votes).forEach(vote => {
@@ -179,10 +208,18 @@ function VotingResults({ roomId, playerId, roomData, gameState }) {
   
   const wasImpostor = gameState.playerRoles[eliminatedPlayerId]?.isImpostor;
   
-  // Contar impostores restantes
-  const remainingImpostors = Object.entries(gameState.playerRoles)
-    .filter(([id, role]) => role.isImpostor && id !== eliminatedPlayerId)
-    .length;
+  // Contar impostores y civiles DESPUÉS de eliminar al votado
+  const remainingPlayers = roomData.players.filter(p => p.id !== eliminatedPlayerId);
+  const remainingImpostors = remainingPlayers.filter(p => 
+    gameState.playerRoles[p.id]?.isImpostor
+  ).length;
+  const remainingCivils = remainingPlayers.length - remainingImpostors;
+
+  // REGLA: Si después de eliminar queda 1v1 o impostores >= civiles, gana impostor
+  const impostorWins = remainingImpostors >= remainingCivils && remainingImpostors > 0;
+  
+  // REGLA: Si no quedan impostores, ganan civiles
+  const civilsWin = remainingImpostors === 0;
 
   const handleContinuePlaying = async () => {
     if (!isHost) return;
@@ -227,34 +264,75 @@ function VotingResults({ roomId, playerId, roomData, gameState }) {
         </div>
       </div>
 
-      {wasImpostor && remainingImpostors === 0 && (
+      {/* VICTORIA CIVILES: Eliminaron a todos los impostores */}
+      {civilsWin && (
         <div className="game-over victory">
           <h3>🎉 ¡Los civiles ganaron!</h3>
           <p>Eliminaron a todos los impostores</p>
         </div>
       )}
 
-      {!wasImpostor && (
+      {/* VICTORIA IMPOSTOR: Igualdad o superioridad numérica */}
+      {impostorWins && (
         <div className="game-over defeat">
-          <h3>❌ Eliminaron a un civil</h3>
-          <p>El impostor sigue entre ustedes</p>
+          <h3>🎭 ¡El impostor ganó!</h3>
+          <p>Los impostores son mayoría o están en empate</p>
         </div>
       )}
 
-      {wasImpostor && remainingImpostors > 0 && (
+      {/* CONTINUAR JUGANDO: Aún no hay ganador definitivo */}
+      {!civilsWin && !impostorWins && (
         <div className="game-continue">
-          <h3>⚠️ Aún hay {remainingImpostors} impostor(es)</h3>
-          <p>¿Quieren continuar jugando?</p>
+          <h3>⚠️ {wasImpostor ? 'Eliminaron a un impostor' : 'Eliminaron a un civil'}</h3>
+          <p>Aún hay {remainingImpostors} impostor(es) vs {remainingCivils} civil(es)</p>
         </div>
       )}
 
       {isHost && (
         <div className="host-decisions">
-          {((!wasImpostor) || (wasImpostor && remainingImpostors > 0)) && (
+          {/* Solo permitir continuar si no hay ganador */}
+          {!civilsWin && !impostorWins && (
             <button onClick={handleContinuePlaying} className="btn-continue">
               ▶️ Continuar jugando
             </button>
           )}
+          <button onClick={handleBackToLobby} className="btn-lobby">
+            🏠 Volver al lobby
+          </button>
+        </div>
+      )}
+
+      {!isHost && (
+        <div className="waiting-host">
+          <p>⏳ Esperando decisión del host...</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ImpostorAutoVictory({ roomId, playerId, isHost }) {
+  const handleBackToLobby = async () => {
+    if (!isHost) return;
+    
+    const roomRef = doc(db, 'rooms', roomId);
+    await updateDoc(roomRef, {
+      gameState: {
+        status: 'waiting'
+      }
+    });
+  };
+
+  return (
+    <div className="voting-results">
+      <div className="game-over defeat">
+        <h2>🎭 ¡El impostor ganó!</h2>
+        <h3>Victoria Automática</h3>
+        <p>Los impostores son mayoría</p>
+      </div>
+
+      {isHost && (
+        <div className="host-decisions">
           <button onClick={handleBackToLobby} className="btn-lobby">
             🏠 Volver al lobby
           </button>
