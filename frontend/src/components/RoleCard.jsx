@@ -3,90 +3,28 @@ import { useState } from 'react';
 import './RoleCard.css';
 
 function RoleCard({ playerData, role, startingPlayer, direction, isHost, onInitiateVoting }) {
-  const [swipeStartY, setSwipeStartY] = useState(0);
-  const [currentY, setCurrentY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const isImpostor = role.isImpostor;
   const word = role.word;
 
-  // Calcular el porcentaje de revelado (0 a 100)
-  const revealPercentage = Math.min(100, (currentY / 150) * 100);
-
-  const handleTouchStart = (e) => {
-    setSwipeStartY(e.touches[0].clientY);
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isDragging) return;
-    
-    const currentTouchY = e.touches[0].clientY;
-    const deltaY = swipeStartY - currentTouchY;
-    
-    // Solo permitir deslizar hacia arriba (deltaY positivo)
-    if (deltaY > 0) {
-      setCurrentY(Math.min(deltaY, 300)); // Limitar a 300px máximo
-    } else {
-      setCurrentY(0);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    
-    // Al soltar, siempre volver a 0
-    setCurrentY(0);
-  };
-
-  // Para mouse (desktop)
-  const handleMouseDown = (e) => {
-    setSwipeStartY(e.clientY);
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    
-    const deltaY = swipeStartY - e.clientY;
-    
-    if (deltaY > 0) {
-      setCurrentY(Math.min(deltaY, 300));
-    } else {
-      setCurrentY(0);
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    setCurrentY(0);
+  const handleCardClick = () => {
+    setIsFlipped(!isFlipped);
   };
 
   return (
     <div className="rolecard-overlay">
-      <div className="swipe-instruction">
-        <p>Mantén presionado y desliza hacia arriba para ver tu rol</p>
-        <div className="arrow-up">↑</div>
+      <div className="tap-instruction">
+        <p>Toca la tarjeta para revelar tu rol</p>
+        <div className="tap-icon">👆</div>
       </div>
 
       <div 
-        className="player-card-container"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        style={{
-          transform: `translateY(-${currentY}px)`,
-          transition: isDragging ? 'none' : 'transform 0.3s ease'
-        }}
+        className={`flip-card-container ${isFlipped ? 'flipped' : ''}`}
+        onClick={handleCardClick}
       >
-        {/* Tarjeta superior - Avatar y nombre */}
-        <div className="player-card-swipeable">
+        {/* FRENTE - Avatar y nombre */}
+        <div className="flip-card-front">
           <div className="player-card-content">
             <img 
               src={playerData.avatar.image} 
@@ -97,19 +35,13 @@ function RoleCard({ playerData, role, startingPlayer, direction, isHost, onIniti
             <p className="player-card-subtitle">{playerData.avatar.name}</p>
           </div>
           
-          <div className="swipe-indicator">
-            <div className="swipe-bar"></div>
+          <div className="tap-indicator">
+            <div className="tap-bar"></div>
           </div>
         </div>
 
-        {/* Información revelada debajo */}
-        <div 
-          className={`role-info-hidden ${isImpostor ? 'impostor' : 'civil'}`}
-          style={{
-            opacity: revealPercentage / 100,
-            pointerEvents: 'none'
-          }}
-        >
+        {/* REVERSO - Información del rol */}
+        <div className={`flip-card-back ${isImpostor ? 'impostor' : 'civil'}`}>
           <div className="rolecard-header">
             <h2>{isImpostor ? '🎭 ERES EL IMPOSTOR' : '👤 ERES CIVIL'}</h2>
           </div>
@@ -152,6 +84,10 @@ function RoleCard({ playerData, role, startingPlayer, direction, isHost, onIniti
                 </span>
               </div>
             </div>
+
+            <div className="tap-back-hint">
+              Toca para volver
+            </div>
           </div>
         </div>
       </div>
@@ -159,7 +95,10 @@ function RoleCard({ playerData, role, startingPlayer, direction, isHost, onIniti
       {/* Botón de iniciar votación solo para el HOST */}
       {isHost && onInitiateVoting && (
         <button 
-          onClick={onInitiateVoting}
+          onClick={(e) => {
+            e.stopPropagation();
+            onInitiateVoting();
+          }}
           className="btn-vote-floating"
         >
           🗳️ Iniciar Votación

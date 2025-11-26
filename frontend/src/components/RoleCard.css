@@ -1,4 +1,4 @@
-/* RoleCard.css - Versión Minimalista Rojo/Blanco/Negro */
+/* RoleCard.css - Versión con Flip y Responsive Mejorado */
 
 .rolecard-overlay {
   position: fixed;
@@ -17,9 +17,9 @@
   box-sizing: border-box;
 }
 
-.swipe-instruction {
+.tap-instruction {
   position: absolute;
-  bottom: 100px;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -29,74 +29,83 @@
   max-width: 450px;
 }
 
-.swipe-instruction p {
+.tap-instruction p {
   margin: 0 0 12px 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 
-.arrow-up {
-  font-size: 42px;
-  animation: bounce 1.5s infinite;
+.tap-icon {
+  font-size: 48px;
+  animation: tap 1.5s infinite;
   display: block;
   margin-top: 8px;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+@keyframes tap {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
-.player-card-container {
+/* Contenedor de la tarjeta con flip */
+.flip-card-container {
   position: relative;
-  width: 90%;
-  max-width: 450px;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: none;
+  width: 100%;
+  max-width: 500px;
+  height: 600px;
+  cursor: pointer;
+  perspective: 1000px;
   z-index: 10;
 }
 
-.player-card-container:active {
-  cursor: grabbing;
+/* Efecto 3D flip */
+.flip-card-container.flipped .flip-card-front {
+  transform: rotateY(180deg);
 }
 
-.player-card-swipeable {
+.flip-card-container.flipped .flip-card-back {
+  transform: rotateY(0deg);
+}
+
+/* Frente de la tarjeta */
+.flip-card-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   background: white;
   border: 3px solid #000;
   border-radius: 20px;
-  padding: 40px 30px 35px 30px;
+  padding: 40px 30px;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
   text-align: center;
-  position: relative;
-  z-index: 2;
+  backface-visibility: hidden;
+  transform: rotateY(0deg);
+  transition: transform 0.6s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .player-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
 .player-card-avatar {
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #DC2626;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.player-card-swipeable:hover .player-card-avatar {
-  transform: scale(1.05);
+  border: 5px solid #DC2626;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 .player-card-name {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 900;
   color: #DC2626;
   margin: 0;
@@ -104,51 +113,56 @@
 }
 
 .player-card-subtitle {
-  font-size: 16px;
+  font-size: 20px;
   color: #666;
   margin: 0;
   font-weight: 600;
 }
 
-.swipe-indicator {
-  margin-top: 20px;
+.tap-indicator {
+  margin-top: 30px;
   display: flex;
   justify-content: center;
 }
 
-.swipe-bar {
-  width: 60px;
-  height: 5px;
+.tap-bar {
+  width: 80px;
+  height: 6px;
   background: #DC2626;
   border-radius: 3px;
 }
 
-.role-info-hidden {
+/* Reverso de la tarjeta */
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   background: white;
   border: 3px solid #000;
   border-radius: 20px;
   padding: 30px;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
-  margin-top: 18px;
-  position: relative;
-  z-index: 1;
+  backface-visibility: hidden;
+  transform: rotateY(-180deg);
+  transition: transform 0.6s;
+  overflow-y: auto;
 }
 
-.role-info-hidden.impostor {
+.flip-card-back.impostor {
   border-color: #DC2626;
 }
 
-.role-info-hidden.civil {
+.flip-card-back.civil {
   border-color: #000;
 }
 
 .rolecard-header {
   text-align: center;
-  margin-bottom: 22px;
+  margin-bottom: 25px;
 }
 
 .rolecard-header h2 {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 900;
   margin: 0;
   color: #000;
@@ -162,7 +176,7 @@
 }
 
 .role-description {
-  font-size: 16px;
+  font-size: 17px;
   color: #555;
   text-align: center;
   line-height: 1.6;
@@ -172,16 +186,11 @@
 
 .word-box {
   background: #F9FAFB;
-  padding: 22px;
+  padding: 25px;
   border-radius: 12px;
   text-align: center;
   border: 3px solid;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.word-box:hover {
-  transform: scale(1.02);
 }
 
 .word-box.impostor-box {
@@ -196,9 +205,9 @@
 
 .word-label {
   display: block;
-  font-size: 14px;
+  font-size: 15px;
   color: #666;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -206,7 +215,7 @@
 
 .word-text {
   display: block;
-  font-size: 30px;
+  font-size: 36px;
   font-weight: 900;
   margin: 10px 0;
   letter-spacing: 1px;
@@ -221,7 +230,7 @@
 }
 
 .word-hint {
-  font-size: 13px;
+  font-size: 14px;
   color: #999;
   margin: 10px 0 0 0;
   font-style: italic;
@@ -240,25 +249,19 @@
   align-items: center;
   gap: 12px;
   background: white;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-radius: 10px;
   border: 2px solid #E5E7EB;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.info-item:hover {
-  border-color: #DC2626;
-  transform: translateX(5px);
 }
 
 .info-icon {
-  font-size: 20px;
+  font-size: 24px;
   flex-shrink: 0;
 }
 
 .info-text {
-  font-size: 15px;
+  font-size: 16px;
   color: #555;
   line-height: 1.5;
   font-weight: 600;
@@ -269,9 +272,18 @@
   font-weight: 900;
 }
 
+.tap-back-hint {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 15px;
+  font-style: italic;
+}
+
 .btn-vote-floating {
   position: fixed;
-  bottom: 30px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   background: #DC2626;
@@ -298,14 +310,135 @@
   transform: translateX(-50%) translateY(-2px);
 }
 
-/* RESPONSIVE - Tablets */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .player-card-container {
-    max-width: 500px;
+/* RESPONSIVE - Desktop Grande (1440px+) */
+@media (min-width: 1440px) {
+  .flip-card-container {
+    max-width: 600px;
+    height: 700px;
   }
 
-  .player-card-swipeable {
-    padding: 50px 40px 40px 40px;
+  .player-card-avatar {
+    width: 220px;
+    height: 220px;
+  }
+
+  .player-card-name {
+    font-size: 38px;
+  }
+
+  .player-card-subtitle {
+    font-size: 22px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 30px;
+  }
+
+  .role-description {
+    font-size: 19px;
+  }
+
+  .word-text {
+    font-size: 42px;
+  }
+
+  .tap-instruction p {
+    font-size: 20px;
+  }
+
+  .tap-icon {
+    font-size: 56px;
+  }
+}
+
+/* RESPONSIVE - Desktop Estándar (1024px - 1439px) */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .flip-card-container {
+    max-width: 550px;
+    height: 650px;
+  }
+
+  .player-card-avatar {
+    width: 200px;
+    height: 200px;
+  }
+
+  .player-card-name {
+    font-size: 34px;
+  }
+
+  .player-card-subtitle {
+    font-size: 21px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 28px;
+  }
+
+  .role-description {
+    font-size: 18px;
+  }
+
+  .word-text {
+    font-size: 38px;
+  }
+}
+
+/* RESPONSIVE - Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .flip-card-container {
+    max-width: 480px;
+    height: 580px;
+  }
+
+  .player-card-avatar {
+    width: 160px;
+    height: 160px;
+  }
+
+  .player-card-name {
+    font-size: 28px;
+  }
+
+  .player-card-subtitle {
+    font-size: 18px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 24px;
+  }
+
+  .role-description {
+    font-size: 16px;
+  }
+
+  .word-text {
+    font-size: 32px;
+  }
+
+  .tap-instruction {
+    top: 60px;
+  }
+
+  .tap-instruction p {
+    font-size: 17px;
+  }
+
+  .tap-icon {
+    font-size: 44px;
+  }
+}
+
+/* RESPONSIVE - Móviles (481px - 767px) */
+@media (max-width: 767px) and (min-width: 481px) {
+  .flip-card-container {
+    max-width: 420px;
+    height: 540px;
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    padding: 30px 25px;
   }
 
   .player-card-avatar {
@@ -314,134 +447,55 @@
   }
 
   .player-card-name {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .player-card-subtitle {
-    font-size: 18px;
-  }
-
-  .role-info-hidden {
-    padding: 35px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 26px;
-  }
-
-  .role-description {
-    font-size: 17px;
-  }
-
-  .word-text {
-    font-size: 34px;
-  }
-
-  .swipe-instruction {
-    bottom: 120px;
-  }
-
-  .swipe-instruction p {
-    font-size: 17px;
-  }
-
-  .arrow-up {
-    font-size: 46px;
-  }
-}
-
-/* RESPONSIVE - Desktop */
-@media (min-width: 1024px) {
-  .player-card-container {
-    max-width: 520px;
-  }
-
-  .player-card-swipeable {
-    padding: 55px 45px;
-  }
-
-  .player-card-avatar {
-    width: 150px;
-    height: 150px;
-  }
-
-  .player-card-name {
-    font-size: 30px;
-  }
-
-  .player-card-subtitle {
-    font-size: 19px;
-  }
-
-  .role-info-hidden {
-    padding: 40px;
-    margin-top: 22px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 28px;
-  }
-
-  .role-description {
-    font-size: 18px;
-  }
-
-  .word-box {
-    padding: 26px;
-  }
-
-  .word-text {
-    font-size: 36px;
-  }
-
-  .info-item {
-    padding: 14px 18px;
-  }
-
-  .info-text {
     font-size: 16px;
   }
 
-  .swipe-instruction {
-    bottom: 130px;
-  }
-
-  .swipe-instruction p {
-    font-size: 18px;
-  }
-
-  .arrow-up {
-    font-size: 50px;
-  }
-
-  .btn-vote-floating {
-    padding: 20px 42px;
+  .rolecard-header h2 {
     font-size: 20px;
-    bottom: 40px;
-  }
-}
-
-/* RESPONSIVE - Móviles */
-@media (max-width: 767px) and (min-width: 481px) {
-  .swipe-instruction {
-    bottom: 90px;
   }
 
-  .swipe-instruction p {
+  .role-description {
     font-size: 15px;
   }
 
-  .arrow-up {
-    font-size: 38px;
+  .word-text {
+    font-size: 28px;
   }
 
-  .player-card-swipeable {
-    padding: 35px 28px 32px 28px;
+  .tap-instruction {
+    top: 50px;
+  }
+
+  .tap-instruction p {
+    font-size: 15px;
+  }
+
+  .tap-icon {
+    font-size: 38px;
+  }
+}
+
+/* RESPONSIVE - Móviles pequeños (320px - 480px) */
+@media (max-width: 480px) {
+  .flip-card-container {
+    max-width: 90%;
+    height: 500px;
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    padding: 25px 20px;
+    border-radius: 18px;
   }
 
   .player-card-avatar {
-    width: 110px;
-    height: 110px;
+    width: 120px;
+    height: 120px;
+    border-width: 4px;
   }
 
   .player-card-name {
@@ -452,61 +506,6 @@
     font-size: 15px;
   }
 
-  .role-info-hidden {
-    padding: 26px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 20px;
-  }
-
-  .role-description {
-    font-size: 15px;
-  }
-
-  .word-text {
-    font-size: 26px;
-  }
-}
-
-/* RESPONSIVE - Móviles pequeños */
-@media (max-width: 480px) {
-  .swipe-instruction {
-    bottom: 75px;
-  }
-
-  .swipe-instruction p {
-    font-size: 14px;
-  }
-
-  .arrow-up {
-    font-size: 34px;
-  }
-
-  .player-card-swipeable {
-    padding: 32px 25px 28px 25px;
-    border-radius: 18px;
-  }
-
-  .player-card-avatar {
-    width: 100px;
-    height: 100px;
-    border-width: 3px;
-  }
-
-  .player-card-name {
-    font-size: 20px;
-  }
-
-  .player-card-subtitle {
-    font-size: 14px;
-  }
-
-  .role-info-hidden {
-    padding: 22px;
-    border-radius: 18px;
-  }
-
   .rolecard-header h2 {
     font-size: 19px;
   }
@@ -515,18 +514,16 @@
     font-size: 14px;
   }
 
-  .word-text {
-    font-size: 24px;
+  .word-box {
+    padding: 20px;
   }
 
-  .word-box {
-    padding: 18px;
-    border-radius: 10px;
+  .word-text {
+    font-size: 26px;
   }
 
   .info-item {
-    padding: 10px 14px;
-    gap: 10px;
+    padding: 12px 14px;
   }
 
   .info-text {
@@ -534,7 +531,19 @@
   }
 
   .info-icon {
-    font-size: 18px;
+    font-size: 20px;
+  }
+
+  .tap-instruction {
+    top: 40px;
+  }
+
+  .tap-instruction p {
+    font-size: 14px;
+  }
+
+  .tap-icon {
+    font-size: 36px;
   }
 
   .btn-vote-floating {
@@ -544,100 +553,53 @@
   }
 }
 
-/* RESPONSIVE - Móviles muy pequeños */
-@media (max-width: 375px) {
-  .swipe-instruction {
-    bottom: 65px;
-  }
-
-  .swipe-instruction p {
-    font-size: 13px;
-  }
-
-  .arrow-up {
-    font-size: 30px;
-  }
-
-  .player-card-swipeable {
-    padding: 28px 20px 25px 20px;
+/* RESPONSIVE - Móviles muy pequeños (< 320px) */
+@media (max-width: 319px) {
+  .flip-card-container {
+    height: 480px;
   }
 
   .player-card-avatar {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
   }
 
   .player-card-name {
-    font-size: 18px;
-  }
-
-  .player-card-subtitle {
-    font-size: 13px;
-  }
-
-  .role-info-hidden {
-    padding: 18px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 17px;
-  }
-
-  .role-description {
-    font-size: 13px;
+    font-size: 20px;
   }
 
   .word-text {
-    font-size: 22px;
-  }
-
-  .word-box {
-    padding: 16px;
-  }
-
-  .info-item {
-    padding: 9px 12px;
-    gap: 8px;
-  }
-
-  .info-text {
-    font-size: 13px;
-  }
-
-  .info-icon {
-    font-size: 16px;
+    font-size: 24px;
   }
 }
 
 /* Orientación horizontal en móviles */
 @media (max-height: 600px) and (orientation: landscape) {
-  .swipe-instruction {
-    bottom: 30px;
+  .flip-card-container {
+    max-width: 450px;
+    height: 90vh;
   }
 
-  .swipe-instruction p {
+  .tap-instruction {
+    top: 20px;
+  }
+
+  .tap-instruction p {
     font-size: 12px;
   }
 
-  .arrow-up {
-    font-size: 26px;
-  }
-
-  .player-card-container {
-    max-width: 400px;
-  }
-
-  .player-card-swipeable {
-    padding: 20px;
+  .tap-icon {
+    font-size: 28px;
   }
 
   .player-card-avatar {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
   }
 
-  .role-info-hidden {
-    padding: 15px;
+  .flip-card-front,
+  .flip-card-back {
+    padding: 20px;
   }
 
   .btn-vote-floating {
