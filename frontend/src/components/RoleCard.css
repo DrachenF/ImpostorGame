@@ -628,3 +628,70 @@
     transform: translateX(-50%) scale(0.98);
   }
 }
+
+/* BOTÓN DE VOTACIÓN MEJORADO - Copia solo esta sección */
+
+.btn-vote-floating {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FFFFFF;
+  color: #DC2626;
+  border: 3px solid #DC2626;
+  padding: 18px 38px;
+  border-radius: 12px;
+  font-size: 19px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-vote-floating:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+  box-shadow: 0 10px 35px rgba(220, 38, 38, 0.5);
+  transform: translateX(-50%) scale(1.05);
+}
+
+.btn-vote-floating:active {
+  transform: translateX(-50%) scale(0.98);
+  box-shadow: 0 5px 20px rgba(220, 38, 38, 0.4);
+}
+
+/* Responsive para móviles pequeños */
+@media (max-width: 480px) {
+  .btn-vote-floating {
+    bottom: 25px;
+    padding: 16px 32px;
+    font-size: 17px;
+  }
+  
+  .btn-vote-floating:hover {
+    transform: translateX(-50%) scale(1.05);
+  }
+  
+  .btn-vote-floating:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+}
+
+/* Responsive para orientación horizontal */
+@media (max-height: 600px) and (orientation: landscape) {
+  .btn-vote-floating {
+    bottom: 15px;
+    padding: 12px 25px;
+    font-size: 15px;
+  }
+  
+  .btn-vote-floating:hover {
+    transform: translateX(-50%) scale(1.05);
+  }
+  
+  .btn-vote-floating:active {
+    transform: translateX(-50%) scale(0.98);
+  }
+}
