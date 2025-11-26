@@ -1,24 +1,24 @@
 // src/utils/avatars.js
 
 // Importar todas las imágenes
-import avatar1 from '../assets/avatars/avatar1.png';
-import avatar2 from '../assets/avatars/avatar2.png';
-import avatar3 from '../assets/avatars/avatar3.png';
-import avatar4 from '../assets/avatars/avatar4.png';
-import avatar5 from '../assets/avatars/avatar5.png';
-import avatar6 from '../assets/avatars/avatar6.png';
-import avatar7 from '../assets/avatars/avatar7.png';
-import avatar8 from '../assets/avatars/avatar8.png';
-import avatar9 from '../assets/avatars/avatar9.png';
-import avatar10 from '../assets/avatars/avatar10.png';
-import avatar11 from '../assets/avatars/avatar11.png';
-import avatar12 from '../assets/avatars/avatar12.png';
-import avatar13 from '../assets/avatars/avatar13.png';
-import avatar14 from '../assets/avatars/avatar14.png';
-import avatar15 from '../assets/avatars/avatar15.png';
-import avatar16 from '../assets/avatars/avatar16.png';
-import avatar17 from '../assets/avatars/avatar17.png';
-import avatar18 from '../assets/avatars/avatar18.png';
+import avatar1 from '../assets/avatars/avatar1.webp';
+import avatar2 from '../assets/avatars/avatar2.webp';
+import avatar3 from '../assets/avatars/avatar3.webp';
+import avatar4 from '../assets/avatars/avatar4.webp';
+import avatar5 from '../assets/avatars/avatar5.webp';
+import avatar6 from '../assets/avatars/avatar6.webp';
+import avatar7 from '../assets/avatars/avatar7.webp';
+import avatar8 from '../assets/avatars/avatar8.webp';
+import avatar9 from '../assets/avatars/avatar9.webp';
+import avatar10 from '../assets/avatars/avatar10.webp';
+import avatar11 from '../assets/avatars/avatar11.webp';
+import avatar12 from '../assets/avatars/avatar12.webp';
+import avatar13 from '../assets/avatars/avatar13.webp';
+import avatar14 from '../assets/avatars/avatar14.webp';
+import avatar15 from '../assets/avatars/avatar15.webp';
+import avatar16 from '../assets/avatars/avatar16.webp';
+import avatar17 from '../assets/avatars/avatar17.webp';
+import avatar18 from '../assets/avatars/avatar18.webp';
 
 export const avatars = [
   { id: 1, image: avatar1, name: 'Avatar 1' },
