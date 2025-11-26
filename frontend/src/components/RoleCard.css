@@ -1,4 +1,4 @@
-/* RoleCard.css - Versión Ultra Moderna y Responsiva */
+/* RoleCard.css - Versión Minimalista Rojo/Blanco/Negro */
 
 .rolecard-overlay {
   position: fixed;
@@ -6,7 +6,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #DC2626;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -24,7 +24,6 @@
   transform: translateX(-50%);
   text-align: center;
   color: white;
-  animation: instructionPulse 2.5s infinite;
   z-index: 5;
   width: 90%;
   max-width: 450px;
@@ -34,26 +33,19 @@
   margin: 0 0 12px 0;
   font-size: 16px;
   font-weight: 700;
-  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
   letter-spacing: 0.5px;
 }
 
 .arrow-up {
   font-size: 42px;
-  animation: arrowBounce 1.8s infinite;
+  animation: bounce 1.5s infinite;
   display: block;
   margin-top: 8px;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
 }
 
-@keyframes arrowBounce {
+@keyframes bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-15px); }
-}
-
-@keyframes instructionPulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
 }
 
 .player-card-container {
@@ -65,18 +57,6 @@
   -webkit-user-select: none;
   touch-action: none;
   z-index: 10;
-  animation: slideInUp 0.6s ease;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .player-card-container:active {
@@ -84,15 +64,14 @@
 }
 
 .player-card-swipeable {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 25px;
+  background: white;
+  border: 3px solid #000;
+  border-radius: 20px;
   padding: 40px 30px 35px 30px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
   text-align: center;
   position: relative;
   z-index: 2;
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
 }
 
 .player-card-content {
@@ -107,24 +86,19 @@
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 5px solid transparent;
-  background: linear-gradient(white, white) padding-box,
-              linear-gradient(135deg, #FF6B81, #5F27CD) border-box;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  border: 4px solid #DC2626;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
 }
 
 .player-card-swipeable:hover .player-card-avatar {
-  transform: scale(1.05) rotate(5deg);
+  transform: scale(1.05);
 }
 
 .player-card-name {
   font-size: 24px;
   font-weight: 900;
-  background: linear-gradient(135deg, #FF6B81, #5F27CD);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #DC2626;
   margin: 0;
   letter-spacing: 0.5px;
 }
@@ -145,30 +119,27 @@
 .swipe-bar {
   width: 60px;
   height: 5px;
-  background: linear-gradient(135deg, #FF6B81, #5F27CD);
+  background: #DC2626;
   border-radius: 3px;
-  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.4);
 }
 
 .role-info-hidden {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 25px;
+  background: white;
+  border: 3px solid #000;
+  border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
   margin-top: 18px;
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(10px);
 }
 
 .role-info-hidden.impostor {
-  border: 4px solid #FF4757;
-  box-shadow: 0 20px 60px rgba(255, 71, 87, 0.5);
+  border-color: #DC2626;
 }
 
 .role-info-hidden.civil {
-  border: 4px solid #5F27CD;
-  box-shadow: 0 20px 60px rgba(95, 39, 205, 0.5);
+  border-color: #000;
 }
 
 .rolecard-header {
@@ -180,7 +151,7 @@
   font-size: 22px;
   font-weight: 900;
   margin: 0;
-  color: #333;
+  color: #000;
   letter-spacing: 0.5px;
 }
 
@@ -200,12 +171,12 @@
 }
 
 .word-box {
-  background: #f8f9fa;
+  background: #F9FAFB;
   padding: 22px;
-  border-radius: 15px;
+  border-radius: 12px;
   text-align: center;
   border: 3px solid;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 
@@ -214,13 +185,13 @@
 }
 
 .word-box.impostor-box {
-  border-color: #FF4757;
-  background: linear-gradient(135deg, #FFE5E9, #FFD1D6);
+  border-color: #DC2626;
+  background: #FEE2E2;
 }
 
 .word-box.civil-box {
-  border-color: #5F27CD;
-  background: linear-gradient(135deg, #E8E4FF, #D4CDFF);
+  border-color: #000;
+  background: #F3F4F6;
 }
 
 .word-label {
@@ -237,23 +208,16 @@
   display: block;
   font-size: 30px;
   font-weight: 900;
-  color: #333;
   margin: 10px 0;
   letter-spacing: 1px;
 }
 
 .word-box.impostor-box .word-text {
-  background: linear-gradient(135deg, #FF6B81, #FF4757);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #DC2626;
 }
 
 .word-box.civil-box .word-text {
-  background: linear-gradient(135deg, #5F27CD, #341F97);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #000;
 }
 
 .word-hint {
@@ -275,24 +239,22 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.8);
+  background: white;
   padding: 12px 16px;
-  border-radius: 12px;
-  border: 2px solid rgba(95, 39, 205, 0.2);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  border: 2px solid #E5E7EB;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
 
 .info-item:hover {
+  border-color: #DC2626;
   transform: translateX(5px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 1);
 }
 
 .info-icon {
   font-size: 20px;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
 }
 
 .info-text {
@@ -303,7 +265,7 @@
 }
 
 .info-text strong {
-  color: #333;
+  color: #000;
   font-weight: 900;
 }
 
@@ -312,41 +274,31 @@
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #FFD93D 0%, #FFA801 100%);
-  color: #fff;
+  background: #DC2626;
+  color: white;
   border: none;
   padding: 18px 38px;
   border-radius: 50px;
   font-size: 19px;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 10px 35px rgba(255, 169, 1, 0.5);
+  box-shadow: 0 8px 30px rgba(220, 38, 38, 0.4);
   z-index: 1000;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: floatVote 2.5s ease-in-out infinite;
+  transition: all 0.3s ease;
   letter-spacing: 0.5px;
 }
 
-@keyframes floatVote {
-  0%, 100% {
-    transform: translateX(-50%) translateY(0);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-10px);
-  }
-}
-
 .btn-vote-floating:hover {
-  background: linear-gradient(135deg, #FFA801 0%, #FF8C00 100%);
-  transform: translateX(-50%) scale(1.08);
-  box-shadow: 0 15px 45px rgba(255, 169, 1, 0.7);
+  background: #B91C1C;
+  transform: translateX(-50%) translateY(-4px);
+  box-shadow: 0 12px 40px rgba(220, 38, 38, 0.5);
 }
 
 .btn-vote-floating:active {
-  transform: translateX(-50%) scale(0.95);
+  transform: translateX(-50%) translateY(-2px);
 }
 
-/* 📱 RESPONSIVE - Tablets */
+/* RESPONSIVE - Tablets */
 @media (min-width: 768px) and (max-width: 1023px) {
   .player-card-container {
     max-width: 500px;
@@ -398,7 +350,7 @@
   }
 }
 
-/* 🖥️ RESPONSIVE - Desktop */
+/* RESPONSIVE - Desktop */
 @media (min-width: 1024px) {
   .player-card-container {
     max-width: 520px;
@@ -469,7 +421,7 @@
   }
 }
 
-/* 📱 RESPONSIVE - Móviles */
+/* RESPONSIVE - Móviles */
 @media (max-width: 767px) and (min-width: 481px) {
   .swipe-instruction {
     bottom: 90px;
@@ -517,7 +469,7 @@
   }
 }
 
-/* 📱 RESPONSIVE - Móviles pequeños */
+/* RESPONSIVE - Móviles pequeños */
 @media (max-width: 480px) {
   .swipe-instruction {
     bottom: 75px;
@@ -533,13 +485,13 @@
 
   .player-card-swipeable {
     padding: 32px 25px 28px 25px;
-    border-radius: 20px;
+    border-radius: 18px;
   }
 
   .player-card-avatar {
     width: 100px;
     height: 100px;
-    border-width: 4px;
+    border-width: 3px;
   }
 
   .player-card-name {
@@ -552,8 +504,7 @@
 
   .role-info-hidden {
     padding: 22px;
-    border-radius: 20px;
-    border-width: 3px;
+    border-radius: 18px;
   }
 
   .rolecard-header h2 {
@@ -570,7 +521,7 @@
 
   .word-box {
     padding: 18px;
-    border-radius: 12px;
+    border-radius: 10px;
   }
 
   .info-item {
@@ -593,7 +544,7 @@
   }
 }
 
-/* 📱 RESPONSIVE - Móviles muy pequeños */
+/* RESPONSIVE - Móviles muy pequeños */
 @media (max-width: 375px) {
   .swipe-instruction {
     bottom: 65px;
