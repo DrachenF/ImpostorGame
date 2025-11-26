@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createRoom } from '../utils/firebaseService';
 import { avatars } from '../utils/avatars';
+import { toastError } from '../utils/toast';
 import './PlayerSetup.css';
 
 function CreateGame() {
@@ -29,6 +30,10 @@ function CreateGame() {
   const handleCreate = async () => {
     if (!playerName.trim()) {
       setError('Por favor escribe tu nombre');
+      toastError('Debes escribir tu nombre', {
+        title: '⚠ Campo requerido',
+        duration: 2500
+      });
       return;
     }
 
@@ -45,6 +50,10 @@ function CreateGame() {
       navigate(`/room/${result.roomCode}`);
     } else {
       setError(result.error);
+      toastError(result.error, {
+        title: '❌ Error al crear',
+        duration: 3000
+      });
     }
     
     setLoading(false);

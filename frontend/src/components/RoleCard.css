@@ -1,4 +1,4 @@
-/* Frontend/src/components/RoleCard.css */
+/* RoleCard.css - Versión Ultra Moderna y Responsiva */
 
 .rolecard-overlay {
   position: fixed;
@@ -19,343 +19,341 @@
 
 .swipe-instruction {
   position: absolute;
-  bottom: 80px;
+  bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
   color: white;
-  animation: pulse 2s infinite;
+  animation: instructionPulse 2.5s infinite;
   z-index: 5;
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
 }
 
 .swipe-instruction p {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-  font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.5px;
 }
 
 .arrow-up {
-  font-size: 35px;
-  animation: bounce 1.5s infinite;
+  font-size: 42px;
+  animation: arrowBounce 1.8s infinite;
   display: block;
-  margin-top: 5px;
+  margin-top: 8px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
 }
 
-@keyframes bounce {
+@keyframes arrowBounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-15px); }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.7; }
+@keyframes instructionPulse {
+  0%, 100% { opacity: 0.8; }
   50% { opacity: 1; }
 }
 
-/* Contenedor principal que se mueve */
 .player-card-container {
   position: relative;
   width: 90%;
-  max-width: 420px;
+  max-width: 450px;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
   z-index: 10;
+  animation: slideInUp 0.6s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .player-card-container:active {
   cursor: grabbing;
 }
 
-/* Tarjeta superior - Avatar y nombre */
 .player-card-swipeable {
-  background: white;
-  border-radius: 20px;
-  padding: 35px 25px 30px 25px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 25px;
+  padding: 40px 30px 35px 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   text-align: center;
   position: relative;
   z-index: 2;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
 }
 
 .player-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
 }
 
 .player-card-avatar {
-  width: 110px;
-  height: 110px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #667eea;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  border: 5px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #FF6B81, #5F27CD) border-box;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.player-card-swipeable:hover .player-card-avatar {
+  transform: scale(1.05) rotate(5deg);
 }
 
 .player-card-name {
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
+  font-size: 24px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #FF6B81, #5F27CD);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: 0.5px;
 }
 
 .player-card-subtitle {
-  font-size: 15px;
+  font-size: 16px;
   color: #666;
   margin: 0;
+  font-weight: 600;
 }
 
 .swipe-indicator {
-  margin-top: 18px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
 }
 
 .swipe-bar {
-  width: 50px;
-  height: 4px;
-  background: #ddd;
-  border-radius: 2px;
+  width: 60px;
+  height: 5px;
+  background: linear-gradient(135deg, #FF6B81, #5F27CD);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(255, 107, 129, 0.4);
 }
 
-/* Información oculta debajo */
 .role-info-hidden {
-  background: white;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
-  margin-top: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 25px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  margin-top: 18px;
   position: relative;
   z-index: 1;
+  backdrop-filter: blur(10px);
 }
 
 .role-info-hidden.impostor {
-  border: 3px solid #e74c3c;
+  border: 4px solid #FF4757;
+  box-shadow: 0 20px 60px rgba(255, 71, 87, 0.5);
 }
 
 .role-info-hidden.civil {
-  border: 3px solid #3498db;
+  border: 4px solid #5F27CD;
+  box-shadow: 0 20px 60px rgba(95, 39, 205, 0.5);
 }
 
 .rolecard-header {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .rolecard-header h2 {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 900;
   margin: 0;
   color: #333;
+  letter-spacing: 0.5px;
 }
 
 .rolecard-body {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .role-description {
-  font-size: 15px;
+  font-size: 16px;
   color: #555;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
+  font-weight: 600;
 }
 
 .word-box {
   background: #f8f9fa;
-  padding: 18px;
-  border-radius: 12px;
+  padding: 22px;
+  border-radius: 15px;
   text-align: center;
-  border: 2px solid;
+  border: 3px solid;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.word-box:hover {
+  transform: scale(1.02);
 }
 
 .word-box.impostor-box {
-  border-color: #e74c3c;
-  background: #ffebee;
+  border-color: #FF4757;
+  background: linear-gradient(135deg, #FFE5E9, #FFD1D6);
 }
 
 .word-box.civil-box {
-  border-color: #3498db;
-  background: #e3f2fd;
+  border-color: #5F27CD;
+  background: linear-gradient(135deg, #E8E4FF, #D4CDFF);
 }
 
 .word-label {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .word-text {
   display: block;
-  font-size: 26px;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 900;
   color: #333;
-  margin: 8px 0;
+  margin: 10px 0;
+  letter-spacing: 1px;
+}
+
+.word-box.impostor-box .word-text {
+  background: linear-gradient(135deg, #FF6B81, #FF4757);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.word-box.civil-box .word-text {
+  background: linear-gradient(135deg, #5F27CD, #341F97);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .word-hint {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
-  margin: 8px 0 0 0;
+  margin: 10px 0 0 0;
   font-style: italic;
+  font-weight: 500;
 }
 
 .game-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 10px;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f8f9fa;
-  padding: 10px 14px;
-  border-radius: 10px;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(95, 39, 205, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 1);
 }
 
 .info-icon {
-  font-size: 18px;
+  font-size: 20px;
   flex-shrink: 0;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
 }
 
 .info-text {
-  font-size: 14px;
+  font-size: 15px;
   color: #555;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
 .info-text strong {
   color: #333;
-  font-weight: 600;
+  font-weight: 900;
 }
 
-/* Botón de iniciar votación */
-.btn-initiate-voting {
+.btn-vote-floating {
   position: fixed;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-  color: white;
+  background: linear-gradient(135deg, #FFD93D 0%, #FFA801 100%);
+  color: #fff;
   border: none;
-  padding: 16px 32px;
+  padding: 18px 38px;
   border-radius: 50px;
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 19px;
+  font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(243, 156, 18, 0.4);
+  box-shadow: 0 10px 35px rgba(255, 169, 1, 0.5);
   z-index: 1000;
-  transition: all 0.3s ease;
-  animation: pulse-button 2s infinite;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: floatVote 2.5s ease-in-out infinite;
+  letter-spacing: 0.5px;
 }
 
-.btn-initiate-voting:hover {
-  transform: translateX(-50%) scale(1.05);
-  box-shadow: 0 10px 30px rgba(243, 156, 18, 0.6);
-}
-
-.btn-initiate-voting:active {
-  transform: translateX(-50%) scale(0.98);
-}
-
-@keyframes pulse-button {
+@keyframes floatVote {
   0%, 100% {
-    box-shadow: 0 8px 20px rgba(243, 156, 18, 0.4);
+    transform: translateX(-50%) translateY(0);
   }
   50% {
-    box-shadow: 0 8px 30px rgba(243, 156, 18, 0.7);
+    transform: translateX(-50%) translateY(-10px);
   }
 }
 
-/* Tablet y pantallas medianas */
-@media (min-width: 768px) {
-  .player-card-container {
-    max-width: 450px;
-  }
-
-  .player-card-swipeable {
-    padding: 45px 35px 35px 35px;
-  }
-
-  .player-card-avatar {
-    width: 130px;
-    height: 130px;
-  }
-
-  .player-card-name {
-    font-size: 26px;
-  }
-
-  .player-card-subtitle {
-    font-size: 17px;
-  }
-
-  .role-info-hidden {
-    padding: 30px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 24px;
-  }
-
-  .role-description {
-    font-size: 16px;
-  }
-
-  .word-text {
-    font-size: 30px;
-  }
-
-  .word-label {
-    font-size: 14px;
-  }
-
-  .info-text {
-    font-size: 15px;
-  }
-
-  .info-icon {
-    font-size: 20px;
-  }
-
-  .swipe-instruction {
-    bottom: 100px;
-  }
-
-  .swipe-instruction p {
-    font-size: 16px;
-  }
-
-  .arrow-up {
-    font-size: 40px;
-  }
-
-  .btn-initiate-voting {
-    padding: 18px 36px;
-    font-size: 19px;
-  }
+.btn-vote-floating:hover {
+  background: linear-gradient(135deg, #FFA801 0%, #FF8C00 100%);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 15px 45px rgba(255, 169, 1, 0.7);
 }
 
-/* Desktop y pantallas grandes */
-@media (min-width: 1024px) {
+.btn-vote-floating:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* 📱 RESPONSIVE - Tablets */
+@media (min-width: 768px) and (max-width: 1023px) {
   .player-card-container {
-    max-width: 480px;
+    max-width: 500px;
   }
 
   .player-card-swipeable {
-    padding: 50px 40px;
+    padding: 50px 40px 40px 40px;
   }
 
   .player-card-avatar {
@@ -373,7 +371,6 @@
 
   .role-info-hidden {
     padding: 35px;
-    margin-top: 20px;
   }
 
   .rolecard-header h2 {
@@ -384,28 +381,8 @@
     font-size: 17px;
   }
 
-  .word-box {
-    padding: 22px;
-  }
-
   .word-text {
-    font-size: 32px;
-  }
-
-  .word-label {
-    font-size: 15px;
-  }
-
-  .info-item {
-    padding: 12px 16px;
-  }
-
-  .info-text {
-    font-size: 16px;
-  }
-
-  .info-icon {
-    font-size: 22px;
+    font-size: 34px;
   }
 
   .swipe-instruction {
@@ -417,20 +394,209 @@
   }
 
   .arrow-up {
-    font-size: 45px;
+    font-size: 46px;
+  }
+}
+
+/* 🖥️ RESPONSIVE - Desktop */
+@media (min-width: 1024px) {
+  .player-card-container {
+    max-width: 520px;
   }
 
-  .btn-initiate-voting {
-    padding: 18px 40px;
+  .player-card-swipeable {
+    padding: 55px 45px;
+  }
+
+  .player-card-avatar {
+    width: 150px;
+    height: 150px;
+  }
+
+  .player-card-name {
+    font-size: 30px;
+  }
+
+  .player-card-subtitle {
+    font-size: 19px;
+  }
+
+  .role-info-hidden {
+    padding: 40px;
+    margin-top: 22px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 28px;
+  }
+
+  .role-description {
+    font-size: 18px;
+  }
+
+  .word-box {
+    padding: 26px;
+  }
+
+  .word-text {
+    font-size: 36px;
+  }
+
+  .info-item {
+    padding: 14px 18px;
+  }
+
+  .info-text {
+    font-size: 16px;
+  }
+
+  .swipe-instruction {
+    bottom: 130px;
+  }
+
+  .swipe-instruction p {
+    font-size: 18px;
+  }
+
+  .arrow-up {
+    font-size: 50px;
+  }
+
+  .btn-vote-floating {
+    padding: 20px 42px;
     font-size: 20px;
     bottom: 40px;
   }
 }
 
-/* Móviles pequeños */
+/* 📱 RESPONSIVE - Móviles */
+@media (max-width: 767px) and (min-width: 481px) {
+  .swipe-instruction {
+    bottom: 90px;
+  }
+
+  .swipe-instruction p {
+    font-size: 15px;
+  }
+
+  .arrow-up {
+    font-size: 38px;
+  }
+
+  .player-card-swipeable {
+    padding: 35px 28px 32px 28px;
+  }
+
+  .player-card-avatar {
+    width: 110px;
+    height: 110px;
+  }
+
+  .player-card-name {
+    font-size: 22px;
+  }
+
+  .player-card-subtitle {
+    font-size: 15px;
+  }
+
+  .role-info-hidden {
+    padding: 26px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 20px;
+  }
+
+  .role-description {
+    font-size: 15px;
+  }
+
+  .word-text {
+    font-size: 26px;
+  }
+}
+
+/* 📱 RESPONSIVE - Móviles pequeños */
+@media (max-width: 480px) {
+  .swipe-instruction {
+    bottom: 75px;
+  }
+
+  .swipe-instruction p {
+    font-size: 14px;
+  }
+
+  .arrow-up {
+    font-size: 34px;
+  }
+
+  .player-card-swipeable {
+    padding: 32px 25px 28px 25px;
+    border-radius: 20px;
+  }
+
+  .player-card-avatar {
+    width: 100px;
+    height: 100px;
+    border-width: 4px;
+  }
+
+  .player-card-name {
+    font-size: 20px;
+  }
+
+  .player-card-subtitle {
+    font-size: 14px;
+  }
+
+  .role-info-hidden {
+    padding: 22px;
+    border-radius: 20px;
+    border-width: 3px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 19px;
+  }
+
+  .role-description {
+    font-size: 14px;
+  }
+
+  .word-text {
+    font-size: 24px;
+  }
+
+  .word-box {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .info-item {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .info-text {
+    font-size: 14px;
+  }
+
+  .info-icon {
+    font-size: 18px;
+  }
+
+  .btn-vote-floating {
+    bottom: 25px;
+    padding: 16px 32px;
+    font-size: 17px;
+  }
+}
+
+/* 📱 RESPONSIVE - Móviles muy pequeños */
 @media (max-width: 375px) {
   .swipe-instruction {
-    bottom: 60px;
+    bottom: 65px;
   }
 
   .swipe-instruction p {
@@ -442,32 +608,32 @@
   }
 
   .player-card-swipeable {
-    padding: 30px 20px 25px 20px;
+    padding: 28px 20px 25px 20px;
   }
 
   .player-card-avatar {
-    width: 95px;
-    height: 95px;
+    width: 90px;
+    height: 90px;
   }
 
   .player-card-name {
-    font-size: 19px;
-  }
-
-  .player-card-subtitle {
-    font-size: 14px;
-  }
-
-  .role-info-hidden {
-    padding: 20px;
-  }
-
-  .rolecard-header h2 {
     font-size: 18px;
   }
 
+  .player-card-subtitle {
+    font-size: 13px;
+  }
+
+  .role-info-hidden {
+    padding: 18px;
+  }
+
+  .rolecard-header h2 {
+    font-size: 17px;
+  }
+
   .role-description {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .word-text {
@@ -475,7 +641,7 @@
   }
 
   .word-box {
-    padding: 15px;
+    padding: 16px;
   }
 
   .info-item {
@@ -492,13 +658,40 @@
   }
 }
 
-/* Pantallas muy anchas */
-@media (min-width: 1440px) {
-  .player-card-container {
-    max-width: 520px;
+/* Orientación horizontal en móviles */
+@media (max-height: 600px) and (orientation: landscape) {
+  .swipe-instruction {
+    bottom: 30px;
   }
 
-  .rolecard-overlay {
-    padding: 40px;
+  .swipe-instruction p {
+    font-size: 12px;
+  }
+
+  .arrow-up {
+    font-size: 26px;
+  }
+
+  .player-card-container {
+    max-width: 400px;
+  }
+
+  .player-card-swipeable {
+    padding: 20px;
+  }
+
+  .player-card-avatar {
+    width: 70px;
+    height: 70px;
+  }
+
+  .role-info-hidden {
+    padding: 15px;
+  }
+
+  .btn-vote-floating {
+    bottom: 15px;
+    padding: 12px 25px;
+    font-size: 15px;
   }
 }

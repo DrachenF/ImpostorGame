@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { subscribeToRoom, updateRoomSettings, removePlayer } from '../utils/firebaseService';
 import { startGame, initiateVoting } from '../utils/gameUtils';
+import { toastSuccess, toastError, toastWarning } from '../utils/toast';
 import GameSettings from './GameSettings';
 import GamePlay from './GamePlay';
 import './WaitingRoom.css';
@@ -28,7 +29,6 @@ function WaitingRoom() {
         setRoomData(data);
         setLoading(false);
         
-        // Resetear isStarting si el juego volvió a estado "waiting"
         if (data.gameState?.status === 'waiting') {
           console.log('🔄 Reseteando estado de inicio');
           setIsStarting(false);
@@ -43,7 +43,6 @@ function WaitingRoom() {
     return () => unsubscribe();
   }, [roomCode, navigate]);
 
-  // Calcular tiempo restante
   useEffect(() => {
     if (!roomData?.expiresAt) return;
 
@@ -64,20 +63,31 @@ function WaitingRoom() {
     };
 
     updateTimeRemaining();
-    const interval = setInterval(updateTimeRemaining, 60000); // Actualizar cada minuto
+    const interval = setInterval(updateTimeRemaining, 60000);
 
     return () => clearInterval(interval);
   }, [roomData]);
 
   const copyRoomCode = () => {
     navigator.clipboard.writeText(roomCode);
-    alert('✅ Código copiado: ' + roomCode);
+    toastSuccess('Código copiado al portapapeles', {
+      title: '📋 Copiado',
+      duration: 2000
+    });
   };
 
   const handleSaveSettings = async (settings) => {
     const result = await updateRoomSettings(roomCode, settings);
     if (!result.success) {
-      alert('❌ Error al guardar configuración');
+      toastError('No se pudo guardar la configuración', {
+        title: '❌ Error',
+        duration: 3000
+      });
+    } else {
+      toastSuccess('Configuración guardada correctamente', {
+        title: '✓ Guardado',
+        duration: 2000
+      });
     }
   };
 
@@ -85,7 +95,15 @@ function WaitingRoom() {
     if (window.confirm('¿Seguro que quieres expulsar a este jugador?')) {
       const result = await removePlayer(roomCode, playerIdToRemove);
       if (!result.success) {
-        alert('❌ Error al expulsar jugador');
+        toastError('No se pudo expulsar al jugador', {
+          title: '❌ Error',
+          duration: 3000
+        });
+      } else {
+        toastSuccess('Jugador expulsado de la sala', {
+          title: '👋 Expulsado',
+          duration: 2000
+        });
       }
     }
   };
@@ -95,21 +113,34 @@ function WaitingRoom() {
     if (!isHost || isStarting) return;
     
     if (roomData.players.length < 3) {
-      alert('⚠️ Se necesitan al menos 3 jugadores para iniciar');
+      toastWarning('Se necesitan al menos 3 jugadores para iniciar', {
+        title: '⚠ Jugadores insuficientes',
+        duration: 3000
+      });
       return;
     }
 
     if (!roomData.selectedCategories || roomData.selectedCategories.length === 0) {
-      alert('⚠️ Debes configurar al menos una categoría antes de iniciar');
+      toastWarning('Debes configurar al menos una categoría antes de iniciar', {
+        title: '⚠ Sin categorías',
+        duration: 3000
+      });
       return;
     }
 
     setIsStarting(true);
     try {
       await startGame(roomCode, roomData);
+      toastSuccess('¡El juego está comenzando!', {
+        title: '🎮 Iniciando',
+        duration: 2000
+      });
     } catch (error) {
       console.error('Error al iniciar el juego:', error);
-      alert('❌ Error al iniciar el juego');
+      toastError('No se pudo iniciar el juego', {
+        title: '❌ Error',
+        duration: 3000
+      });
       setIsStarting(false);
     }
   };
@@ -120,9 +151,16 @@ function WaitingRoom() {
     
     try {
       await initiateVoting(roomCode);
+      toastInfo('Votación iniciada', {
+        title: '🗳️ Votación',
+        duration: 2000
+      });
     } catch (error) {
       console.error('Error al iniciar votación:', error);
-      alert('❌ Error al iniciar votación');
+      toastError('No se pudo iniciar la votación', {
+        title: '❌ Error',
+        duration: 3000
+      });
     }
   };
 
@@ -154,7 +192,6 @@ function WaitingRoom() {
     );
   }
 
-  // Si el juego ya empezó, mostrar GamePlay
   if (roomData.gameState?.status === 'starting') {
     return <GamePlay roomId={roomCode} playerId={playerId} />;
   }
