@@ -1,0 +1,2 @@
+Se reasigna automáticamente el host cuando el anfitrión deja la sala y se elimina la sala solo si ya no hay jugadores.
+Se agregó una limpieza al salir para quitar al jugador de la sala y permitir que el control pase a otro participante.

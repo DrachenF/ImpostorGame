@@ -1,8 +1,8 @@
 // Frontend/src/components/WaitingRoom.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { subscribeToRoom, updateRoomSettings, removePlayer } from '../utils/firebaseService';
-import { startGame, initiateVoting } from '../utils/gameUtils';
+import { subscribeToRoom, updateRoomSettings, removePlayer, leaveRoom } from '../utils/firebaseService';
+import { startGame } from '../utils/gameUtils';
 import { toastSuccess, toastError, toastWarning } from '../utils/toast';
 import GameSettings from './GameSettings';
 import GamePlay from './GamePlay';
@@ -15,9 +15,27 @@ function WaitingRoom() {
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
-  const [roomExpired, setRoomExpired] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('');
   const playerId = localStorage.getItem('playerId');
+
+  useEffect(() => {
+    let hasLeftRoom = false;
+
+    const handleLeaveRoom = async () => {
+      if (hasLeftRoom) return;
+      hasLeftRoom = true;
+      await leaveRoom(roomCode, playerId);
+    };
+
+    window.addEventListener('beforeunload', handleLeaveRoom);
+    window.addEventListener('pagehide', handleLeaveRoom);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleLeaveRoom);
+      window.removeEventListener('pagehide', handleLeaveRoom);
+      handleLeaveRoom();
+    };
+  }, [roomCode, playerId]);
 
   useEffect(() => {
     console.log('🔍 Cargando sala:', roomCode);
@@ -35,7 +53,6 @@ function WaitingRoom() {
         }
       } else {
         console.log('❌ Sala no encontrada o expirada');
-        setRoomExpired(true);
         setLoading(false);
       }
     });
@@ -142,25 +159,6 @@ function WaitingRoom() {
         duration: 3000
       });
       setIsStarting(false);
-    }
-  };
-
-  const handleInitiateVoting = async () => {
-    const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
-    if (!isHost) return;
-    
-    try {
-      await initiateVoting(roomCode);
-      toastInfo('Votación iniciada', {
-        title: '🗳️ Votación',
-        duration: 2000
-      });
-    } catch (error) {
-      console.error('Error al iniciar votación:', error);
-      toastError('No se pudo iniciar la votación', {
-        title: '❌ Error',
-        duration: 3000
-      });
     }
   };
 

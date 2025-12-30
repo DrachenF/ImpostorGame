@@ -1,10 +1,9 @@
 // src/utils/firebaseService.js
 import { db } from '../config/firebase';
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
+import {
+  doc,
+  setDoc,
+  getDoc,
   updateDoc,
   arrayUnion,
   onSnapshot,
@@ -12,6 +11,17 @@ import {
 } from 'firebase/firestore';
 import { generateRoomCode, generatePlayerId } from './gameUtils';
 import { categories } from './categories'; // ← IMPORTAR categories
+
+export const deleteRoom = async (roomCode) => {
+  try {
+    await deleteDoc(doc(db, 'rooms', roomCode));
+    console.log('🗑️ Sala eliminada:', roomCode);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error eliminando sala:', error);
+    return { success: false, error: error.message };
+  }
+};
 
 // Crear una nueva sala
 export const createRoom = async (hostName, avatar) => {
@@ -161,22 +171,58 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
   try {
     const roomRef = doc(db, 'rooms', roomCode);
     const roomSnap = await getDoc(roomRef);
-    
+
     if (!roomSnap.exists()) {
       return { success: false, error: 'Sala no encontrada' };
     }
 
     const roomData = roomSnap.data();
-    const updatedPlayers = roomData.players.filter(p => p.id !== playerIdToRemove);
+    const playerWasHost = roomData.players.some(p => p.id === playerIdToRemove && p.isHost);
+    const remainingPlayers = roomData.players.filter(p => p.id !== playerIdToRemove);
+
+    if (remainingPlayers.length === 0) {
+      await deleteDoc(roomRef);
+      console.log('ℹ️ Sala eliminada al quedar sin jugadores');
+      return { success: true, roomDeleted: true };
+    }
+
+    let newHostId = roomData.host;
+    const updatedPlayers = remainingPlayers.map(player => ({
+      ...player,
+      isHost: false
+    }));
+
+    if (playerWasHost || !remainingPlayers.some(p => p.id === roomData.host)) {
+      newHostId = remainingPlayers[0].id;
+      updatedPlayers[0].isHost = true;
+    } else {
+      const currentHostIndex = updatedPlayers.findIndex(p => p.id === roomData.host);
+      if (currentHostIndex !== -1) {
+        updatedPlayers[currentHostIndex].isHost = true;
+      }
+    }
 
     await updateDoc(roomRef, {
-      players: updatedPlayers
+      players: updatedPlayers,
+      host: newHostId
     });
 
     console.log('✅ Jugador eliminado');
-    return { success: true };
+    if (playerWasHost) {
+      console.log(`👑 Nuevo host asignado: ${newHostId}`);
+    }
+
+    return { success: true, newHostId };
   } catch (error) {
     console.error('❌ Error eliminando jugador:', error);
     return { success: false, error: error.message };
   }
-}
+};
+
+export const leaveRoom = async (roomCode, playerId) => {
+  if (!roomCode || !playerId) {
+    return { success: false, error: 'Datos de sala incompletos' };
+  }
+
+  return removePlayer(roomCode, playerId);
+};
