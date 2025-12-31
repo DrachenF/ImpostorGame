@@ -198,5 +198,56 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
 
 export const leaveRoom = async (roomCode, playerId) => {
   if (!roomCode || !playerId) return { success: false };
-  return removePlayer(roomCode, playerId);
+
+  const normalizedCode = normalizeRoomCode(roomCode);
+  const roomRef = doc(db, 'rooms', normalizedCode);
+  const roomSnap = await getDoc(roomRef);
+
+  if (!roomSnap.exists()) return { success: false, error: 'Sala no encontrada' };
+
+  const roomData = roomSnap.data();
+  const playerExists = roomData.players.some(p => p.id === playerId);
+  if (!playerExists) return { success: false, error: 'Jugador no encontrado' };
+
+  // Si el juego no ha comenzado, lo eliminamos completamente
+  if (roomData.status === 'waiting') {
+    return removePlayer(normalizedCode, playerId);
+  }
+
+  const updatedPlayers = roomData.players.map(p =>
+    p.id === playerId ? { ...p, isAlive: false, hasLeft: true } : p
+  );
+
+  const updates = { players: updatedPlayers };
+
+  // Si estaba votando y ya había emitido voto, lo eliminamos del conteo
+  if (roomData.status === 'voting' && roomData.gameState?.votingPhase?.votes) {
+    const newVotes = { ...roomData.gameState.votingPhase.votes };
+    delete newVotes[playerId];
+    updates['gameState.votingPhase.votes'] = newVotes;
+  }
+
+  const aliveImpostors = updatedPlayers.filter(p => p.isImpostor && p.isAlive !== false).length;
+  const aliveCitizens = updatedPlayers.filter(p => !p.isImpostor && p.isAlive !== false).length;
+
+  if (aliveImpostors === 0) {
+    updates.status = 'voting';
+    updates['gameState.votingPhase'] = {
+      active: true,
+      showResults: true,
+      votes: {},
+      forceGameOver: 'citizens_win'
+    };
+  } else if (aliveImpostors >= aliveCitizens) {
+    updates.status = 'voting';
+    updates['gameState.votingPhase'] = {
+      active: true,
+      showResults: true,
+      votes: {},
+      forceGameOver: 'impostors_win'
+    };
+  }
+
+  await updateDoc(roomRef, updates);
+  return { success: true };
 };

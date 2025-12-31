@@ -1,8 +1,9 @@
 // Frontend/src/components/GamePlay.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore'; 
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { leaveRoom } from '../utils/firebaseService';
 import { initiateVoting } from '../utils/gameUtils';
 import { categories } from '../utils/categories';
 import RoleCard from './RoleCard';
@@ -57,23 +58,9 @@ function GamePlay({ roomId, playerId }) {
 
       if (isGameActive && playerData.isAlive) {
         try {
-            const roomRef = doc(db, 'rooms', roomId);
-            const snap = await getDoc(roomRef);
-            if (snap.exists()) {
-                const freshPlayers = snap.data().players;
-                
-                const updatedPlayers = freshPlayers.map(p => {
-                    if (p.id === playerId) {
-                        // 👇 AQUÍ ESTÁ EL CAMBIO CLAVE: Agregamos hasLeft: true
-                        return { ...p, isAlive: false, hasLeft: true }; 
-                    }
-                    return p;
-                });
-
-                await updateDoc(roomRef, { players: updatedPlayers });
-            }
+          await leaveRoom(roomId, playerId);
         } catch (e) {
-            console.error("No pude marcarme como muerto al salir:", e);
+          console.error("No pude marcarme como muerto al salir:", e);
         }
       }
     };
