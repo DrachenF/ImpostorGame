@@ -51,43 +51,57 @@ function GamePlay({ roomId, playerId }) {
 
   // 🚨 2. AUTO-ELIMINACIÓN AL SALIR (MODIFICADO) 🚨
   useEffect(() => {
-    const handlePlayerExit = async () => {
-      if (!roomData || !playerData) return;
-      const isGameActive = roomData.status === 'playing' || roomData.status === 'voting';
+    const markPlayerAsDisconnected = async () => {
+      try {
+        const roomRef = doc(db, 'rooms', roomId);
+        const snap = await getDoc(roomRef);
 
-      if (isGameActive && playerData.isAlive) {
-        try {
-            const roomRef = doc(db, 'rooms', roomId);
-            const snap = await getDoc(roomRef);
-            if (snap.exists()) {
-                const freshPlayers = snap.data().players;
-                
-                const updatedPlayers = freshPlayers.map(p => {
-                    if (p.id === playerId) {
-                        // 👇 AQUÍ ESTÁ EL CAMBIO CLAVE: Agregamos hasLeft: true
-                        return { ...p, isAlive: false, hasLeft: true }; 
-                    }
-                    return p;
-                });
+        if (!snap.exists()) return;
 
-                await updateDoc(roomRef, { players: updatedPlayers });
-            }
-        } catch (e) {
-            console.error("No pude marcarme como muerto al salir:", e);
+        const data = snap.data();
+        const isGameActive = data.status === 'playing' || data.status === 'voting';
+        const players = data.players || [];
+        const playerIndex = players.findIndex(p => p.id === playerId);
+
+        if (!isGameActive || playerIndex === -1) return;
+
+        const targetPlayer = players[playerIndex];
+        if (targetPlayer.isAlive === false || targetPlayer.hasLeft) return;
+
+        const updatedPlayers = players.map(p => {
+          if (p.id === playerId) {
+            return { ...p, isAlive: false, hasLeft: true };
+          }
+          return p;
+        });
+
+        const updates = { players: updatedPlayers };
+        const currentVotes = data.gameState?.votingPhase?.votes;
+
+        if (currentVotes && currentVotes[playerId]) {
+          const newVotes = { ...currentVotes };
+          delete newVotes[playerId];
+          updates['gameState.votingPhase.votes'] = newVotes;
         }
+
+        await updateDoc(roomRef, updates);
+      } catch (e) {
+        console.error("No pude marcarme como muerto al salir:", e);
       }
     };
 
-    const onBeforeUnload = (e) => {
-        handlePlayerExit();
-    };
+    const onBeforeUnload = () => markPlayerAsDisconnected();
+    const onPageHide = () => markPlayerAsDisconnected();
 
     window.addEventListener('beforeunload', onBeforeUnload);
+    window.addEventListener('pagehide', onPageHide);
 
     return () => {
-        window.removeEventListener('beforeunload', onBeforeUnload);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      window.removeEventListener('pagehide', onPageHide);
+      markPlayerAsDisconnected();
     };
-  }, [roomId, playerId, roomData, playerData]);
+  }, [roomId, playerId]);
 
 
   // 3. Lógica de ÁRBITRO
