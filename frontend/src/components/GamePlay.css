@@ -1,0 +1,413 @@
+/* GamePlay.css - Versión Minimalista Rojo/Blanco/Negro */
+
+.gameplay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  overflow: hidden;
+}
+
+/* Countdown Overlay */
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 950;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.countdown-circle {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: #DC2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 40px rgba(220, 38, 38, 0.4);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.countdown-number {
+  font-size: 110px;
+  font-weight: 900;
+  color: white;
+}
+
+.countdown-text {
+  margin-top: 40px;
+  font-size: 24px;
+  color: white;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Show Card Overlay */
+.show-card-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #DC2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+}
+
+.btn-show-card {
+  background: white;
+  color: #DC2626;
+  border: 3px solid #DC2626;
+  padding: 20px 45px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-show-card:hover {
+  background: #DC2626;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+}
+
+.btn-show-card:active {
+  transform: translateY(-2px);
+}
+
+/* Botón flotante de votación */
+.btn-vote-floating {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #DC2626;
+  color: white;
+  border: none;
+  padding: 18px 35px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  letter-spacing: 0.5px;
+}
+
+.btn-vote-floating:hover {
+  background: #B91C1C;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(220, 38, 38, 0.5);
+}
+
+.btn-vote-floating:active {
+  transform: translateY(-2px);
+}
+
+/* Expired Overlay */
+.expired-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.expired-card {
+  background: white;
+  border: 3px solid #DC2626;
+  border-radius: 20px;
+  padding: 45px 35px;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+}
+
+.expired-card h2 {
+  font-size: 32px;
+  color: #DC2626;
+  margin: 0 0 18px 0;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.expired-card p {
+  font-size: 17px;
+  color: #333;
+  line-height: 1.6;
+  margin: 0 0 30px 0;
+  font-weight: 600;
+}
+
+.btn-back-home {
+  background: #DC2626;
+  color: white;
+  border: none;
+  padding: 16px 36px;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.btn-back-home:hover {
+  background: #B91C1C;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+}
+
+.btn-back-home:active {
+  transform: translateY(-1px);
+}
+
+/* RESPONSIVE - Tablets */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .countdown-circle {
+    width: 200px;
+    height: 200px;
+  }
+
+  .countdown-number {
+    font-size: 100px;
+  }
+
+  .countdown-text {
+    font-size: 22px;
+    margin-top: 35px;
+  }
+
+  .btn-show-card {
+    padding: 22px 48px;
+    font-size: 1.6rem;
+  }
+}
+
+/* RESPONSIVE - Móviles */
+@media (max-width: 767px) and (min-width: 481px) {
+  .countdown-circle {
+    width: 180px;
+    height: 180px;
+  }
+
+  .countdown-number {
+    font-size: 90px;
+  }
+
+  .countdown-text {
+    font-size: 20px;
+    margin-top: 32px;
+  }
+
+  .btn-show-card {
+    padding: 20px 42px;
+    font-size: 1.4rem;
+  }
+
+  .btn-vote-floating {
+    bottom: 28px;
+    right: 28px;
+    padding: 16px 32px;
+    font-size: 1.15rem;
+  }
+}
+
+/* RESPONSIVE - Móviles pequeños */
+@media (max-width: 480px) {
+  .countdown-circle {
+    width: 160px;
+    height: 160px;
+  }
+
+  .countdown-number {
+    font-size: 80px;
+  }
+
+  .countdown-text {
+    font-size: 18px;
+    margin-top: 28px;
+  }
+
+  .btn-show-card {
+    padding: 18px 38px;
+    font-size: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .btn-vote-floating {
+    bottom: 25px;
+    right: 25px;
+    padding: 15px 28px;
+    font-size: 1.05rem;
+  }
+
+  .expired-card {
+    padding: 35px 28px;
+  }
+
+  .expired-card h2 {
+    font-size: 28px;
+  }
+
+  .expired-card p {
+    font-size: 16px;
+  }
+
+  .btn-back-home {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+}
+
+/* RESPONSIVE - Móviles muy pequeños */
+@media (max-width: 375px) {
+  .countdown-circle {
+    width: 140px;
+    height: 140px;
+  }
+
+  .countdown-number {
+    font-size: 70px;
+  }
+
+  .countdown-text {
+    font-size: 16px;
+    margin-top: 25px;
+  }
+
+  .btn-show-card {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+  }
+
+  .btn-vote-floating {
+    bottom: 20px;
+    right: 20px;
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+
+  .expired-card {
+    padding: 30px 22px;
+  }
+
+  .expired-card h2 {
+    font-size: 24px;
+  }
+
+  .expired-card p {
+    font-size: 15px;
+  }
+
+  .btn-back-home {
+    padding: 13px 28px;
+    font-size: 15px;
+  }
+}
+
+/* RESPONSIVE - Pantallas grandes */
+@media (min-width: 1024px) {
+  .countdown-circle {
+    width: 240px;
+    height: 240px;
+  }
+
+  .countdown-number {
+    font-size: 120px;
+  }
+
+  .countdown-text {
+    font-size: 26px;
+    margin-top: 45px;
+  }
+
+  .btn-show-card {
+    padding: 24px 52px;
+    font-size: 1.7rem;
+  }
+
+  .btn-vote-floating {
+    bottom: 35px;
+    right: 35px;
+    padding: 20px 40px;
+    font-size: 1.3rem;
+  }
+
+  .expired-card {
+    max-width: 500px;
+    padding: 50px 40px;
+  }
+}
+
+/* Orientación horizontal en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .countdown-circle {
+    width: 120px;
+    height: 120px;
+  }
+
+  .countdown-number {
+    font-size: 60px;
+  }
+
+  .countdown-text {
+    font-size: 14px;
+    margin-top: 18px;
+  }
+
+  .btn-show-card {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+
+  .btn-vote-floating {
+    bottom: 15px;
+    right: 15px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+  }
+}
