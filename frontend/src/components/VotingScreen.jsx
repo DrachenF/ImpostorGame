@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { removePlayer, kickPlayer } from '../utils/firebaseService';
+import { removePlayer, kickPlayer, heartbeatPlayer, pruneInactivePlayers, leaveRoom } from '../utils/firebaseService';
 import { toastWarning } from '../utils/toast';
 import './VotingScreen.css';
 
@@ -10,6 +10,7 @@ function VotingScreen({ roomId, playerId, roomData }) {
   const [selectedVote, setSelectedVote] = useState(null);
   const [hasConfirmed, setHasConfirmed] = useState(false);
   const [kickedNotified, setKickedNotified] = useState(false);
+  const lastCleanupRef = useRef(0);
   const navigate = useNavigate();
 
   const votingState = roomData.gameState?.votingPhase || {};
@@ -48,6 +49,13 @@ function VotingScreen({ roomId, playerId, roomData }) {
       setSelectedVote(null);
     }
   }, [myVote, hasConfirmed]);
+
+  useEffect(() => {
+    const beat = () => heartbeatPlayer(roomId, playerId).catch(() => {});
+    beat();
+    const id = setInterval(beat, 12000);
+    return () => clearInterval(id);
+  }, [roomId, playerId]);
 
   useEffect(() => {
     if (!isHost) return;
@@ -97,6 +105,24 @@ function VotingScreen({ roomId, playerId, roomData }) {
       // ❌ NO llamar markPlayerAsDisconnected aquí
     };
   }, [roomId, playerId]);
+
+  useEffect(() => {
+    if (!roomData) return;
+    const now = Date.now();
+    if (now - lastCleanupRef.current < 10000) return;
+    const me = roomData.players.find((p) => p.id === playerId && !p.isKicked && !p.hasLeft);
+    const hostMissing = !roomData.players.some((p) => p.id === roomData.host && p.isHost && !p.hasLeft && !p.isKicked);
+    const shouldClean = me && (me.isHost || hostMissing);
+    if (!shouldClean) return;
+    lastCleanupRef.current = now;
+    pruneInactivePlayers(roomId).catch(() => {});
+  }, [roomData, roomId, playerId]);
+
+  useEffect(() => {
+    return () => {
+      if (!kickedNotified) leaveRoom(roomId, playerId);
+    };
+  }, [roomId, playerId, kickedNotified]);
 
   const confirmVote = async () => {
     if (!selectedVote || hasConfirmed || !amIAlive) return;

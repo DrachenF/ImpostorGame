@@ -1,7 +1,7 @@
 // Frontend/src/components/WaitingRoom.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { subscribeToRoom, updateRoomSettings, removePlayer, leaveRoom, kickPlayer } from '../utils/firebaseService';
+import { subscribeToRoom, updateRoomSettings, leaveRoom, kickPlayer, heartbeatPlayer, pruneInactivePlayers, transferHost } from '../utils/firebaseService';
 import { startGame } from '../utils/gameUtils';
 import { toastSuccess, toastError, toastWarning } from '../utils/toast';
 import GameSettings from './GameSettings';
@@ -19,6 +19,7 @@ function WaitingRoom() {
   const [wasKicked, setWasKicked] = useState(false);
   const playerId = localStorage.getItem('playerId');
   const unsubscribeRef = useRef(null);
+  const lastCleanupRef = useRef(0);
 
   // Salida segura
   useEffect(() => {
@@ -26,6 +27,13 @@ function WaitingRoom() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [roomCode, playerId]);
+
+  useEffect(() => {
+    return () => {
+      if (!wasKicked) leaveRoom(roomCode, playerId);
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [roomCode, playerId, wasKicked]);
 
   // Suscripción a la sala
   useEffect(() => {
@@ -46,6 +54,13 @@ function WaitingRoom() {
   }, [roomCode, navigate]);
 
   useEffect(() => {
+    const beat = () => heartbeatPlayer(roomCode, playerId).catch(() => {});
+    beat();
+    const id = setInterval(beat, 12000);
+    return () => clearInterval(id);
+  }, [roomCode, playerId]);
+
+  useEffect(() => {
     if (!roomData || wasKicked) return;
 
     const kickedPlayers = roomData.kickedPlayers || {};
@@ -60,6 +75,18 @@ function WaitingRoom() {
       navigate('/');
     }
   }, [roomData, playerId, navigate, wasKicked, unsubscribeRef]);
+
+  useEffect(() => {
+    if (!roomData) return;
+    const now = Date.now();
+    if (now - lastCleanupRef.current < 10000) return;
+    const me = roomData.players.find((p) => p.id === playerId && !p.isKicked && !p.hasLeft);
+    const hostMissing = !roomData.players.some((p) => p.id === roomData.host && p.isHost && !p.hasLeft && !p.isKicked);
+    const shouldClean = me && (me.isHost || hostMissing);
+    if (!shouldClean) return;
+    lastCleanupRef.current = now;
+    pruneInactivePlayers(roomCode).catch(() => {});
+  }, [roomData, roomCode, playerId]);
 
   // Temporizador de expiración
   useEffect(() => {
@@ -86,6 +113,15 @@ function WaitingRoom() {
     setIsStarting(true);
     try { await startGame(roomCode, roomData); }
     catch (e) { setIsStarting(false); toastError('Error iniciando'); }
+  };
+
+  const handleTransferHost = async (targetId) => {
+    if (!targetId || targetId === playerId) return;
+    try {
+      await transferHost(roomCode, targetId);
+    } catch (e) {
+      toastError('No se pudo asignar host');
+    }
   };
 
   if (loading) return <div className="waiting-room-container"><div className="loading">⏳ Cargando...</div></div>;
@@ -127,7 +163,10 @@ function WaitingRoom() {
                   <img src={p.avatar.image} alt="av" className="player-avatar-img"/>
                   <span className="player-name">{p.isHost && '👑'} {p.name} {isMe && '(Tú)'}</span>
                   {isHost && p.id !== playerId && (
-                    <button onClick={() => kickPlayer(roomCode, p.id, playerId)} className="btn-kick">✕</button>
+                    <div className="player-actions">
+                      <button onClick={() => handleTransferHost(p.id)} className="btn-host-transfer" title="Dar host">👑</button>
+                      <button onClick={() => kickPlayer(roomCode, p.id, playerId)} className="btn-kick">✕</button>
+                    </div>
                   )}
                 </div>
               );
