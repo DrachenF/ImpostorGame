@@ -24,83 +24,6 @@
   letter-spacing: 1px;
 }
 
-.btn-start-voting {
-  background: #DC2626;
-  color: white;
-  border: none;
-  padding: 14px 35px;
-  border-radius: 12px;
-  font-size: 1.15rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 900;
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
-  letter-spacing: 0.5px;
-}
-
-.btn-start-voting:hover {
-  background: #B91C1C;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-}
-
-.btn-start-voting:active {
-  transform: translateY(-1px);
-}
-
-.voting-countdown {
-  background: white;
-  border: 3px solid #DC2626;
-  border-radius: 20px;
-  padding: 45px;
-  text-align: center;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
-  margin: 50px 0;
-  max-width: 400px;
-  width: 100%;
-}
-
-.voting-countdown .countdown-number {
-  font-size: 6rem;
-  font-weight: 900;
-  color: #DC2626;
-  display: block;
-  margin-bottom: 15px;
-}
-
-.voting-countdown p {
-  font-size: 1.4rem;
-  color: #000;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
-
-.voting-instruction {
-  background: white;
-  border: 3px solid #000;
-  border-radius: 15px;
-  padding: 25px;
-  text-align: center;
-  margin-bottom: 25px;
-  max-width: 650px;
-  width: 100%;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.voting-instruction p {
-  margin: 8px 0;
-  font-size: 1.15rem;
-  color: #000;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-
-.vote-count {
-  font-weight: 900 !important;
-  color: #DC2626 !important;
-  font-size: 1.3rem !important;
-}
-
 .players-voting-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -108,6 +31,12 @@
   width: 100%;
   max-width: 750px;
   margin-bottom: 25px;
+}
+
+.vote-card-wrapper {
+  position: relative; /* Importante para el botón de kick */
+  display: flex;
+  justify-content: center;
 }
 
 .player-vote-card {
@@ -121,6 +50,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
@@ -144,12 +74,6 @@
   box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
 }
 
-.player-vote-card.voted {
-  border-color: #000;
-  background: #F3F4F6;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
 .player-vote-avatar {
   width: 85px;
   height: 85px;
@@ -159,10 +83,6 @@
   border: 3px solid #DC2626;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease;
-}
-
-.player-vote-card:hover .player-vote-avatar {
-  transform: scale(1.1);
 }
 
 .player-vote-name {
@@ -180,41 +100,43 @@
   right: 12px;
   background: #DC2626;
   color: white;
-  width: 35px;
-  height: 35px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 900;
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
 }
 
-.vote-indicator.voted {
-  width: auto;
-  padding: 6px 14px;
-  border-radius: 25px;
-  font-size: 0.85rem;
-  background: #000;
-}
-
-.vote-badge {
+/* --- ESTILOS DEL BOTÓN KICK (FANTASMAS) --- */
+.btn-kick-ghost {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background: #DC2626;
-  color: white;
-  width: 28px;
-  height: 28px;
+  top: -10px;
+  right: -10px;
+  background: #000;
+  color: #fff;
+  border: 2px solid #DC2626;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
-  font-size: 0.95rem;
-  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
 }
+
+.btn-kick-ghost:hover {
+  transform: scale(1.1);
+  background: #DC2626;
+}
+/* ------------------------------------------- */
 
 .btn-confirm-vote {
   background: #DC2626;
@@ -231,14 +153,10 @@
   letter-spacing: 0.5px;
 }
 
-.btn-confirm-vote:hover {
-  background: #B91C1C;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);
-}
-
-.btn-confirm-vote:active {
-  transform: translateY(-1px);
+.btn-confirm-vote:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .waiting-votes {
@@ -307,13 +225,6 @@
   letter-spacing: 0.5px;
 }
 
-.eliminated-votes {
-  font-size: 1.3rem;
-  color: #666;
-  margin: 12px 0;
-  font-weight: 700;
-}
-
 .role-reveal {
   margin-top: 25px;
   padding: 16px 28px;
@@ -324,15 +235,8 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.role-reveal.impostor {
-  background: #DC2626;
-  color: white;
-}
-
-.role-reveal.civil {
-  background: #000;
-  color: white;
-}
+.role-reveal.impostor { background: #DC2626; color: white; }
+.role-reveal.civil { background: #000; color: white; }
 
 .game-over, .game-continue {
   background: white;
@@ -350,33 +254,16 @@
   font-size: 2rem;
   margin-bottom: 12px;
   font-weight: 900;
-  letter-spacing: 0.5px;
 }
 
-.game-over.victory h3 {
-  color: #DC2626;
-}
-
-.game-over.defeat h3 {
-  color: #000;
-}
-
-.game-continue h3 {
-  color: #DC2626;
-}
+.game-over.victory h3 { color: #DC2626; }
+.game-over.defeat h3 { color: #000; }
+.game-continue h3 { color: #DC2626; }
 
 .game-over p, .game-continue p {
   font-size: 1.15rem;
   color: #666;
   font-weight: 700;
-}
-
-.host-decisions {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  max-width: 450px;
-  width: 100%;
 }
 
 .btn-continue, .btn-lobby {
@@ -397,201 +284,21 @@
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
 }
 
-.btn-continue:hover {
-  background: #B91C1C;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-}
-
 .btn-lobby {
   background: white;
   border-color: #000;
   color: #000;
 }
 
-.btn-lobby:hover {
-  background: #000;
-  color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.btn-continue:active,
-.btn-lobby:active {
-  transform: translateY(-1px);
-}
-
-.waiting-host {
-  background: white;
-  border: 3px solid #DC2626;
-  border-radius: 15px;
-  padding: 25px;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.waiting-host p {
-  color: #DC2626;
-  font-size: 1.25rem;
-  font-weight: 900;
-  margin: 0;
-}
-
-/* RESPONSIVE - Tablets */
-@media (max-width: 1023px) and (min-width: 768px) {
-  .players-voting-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  }
-}
-
-/* RESPONSIVE - Móviles */
-@media (max-width: 767px) and (min-width: 481px) {
-  .voting-header h2 {
-    font-size: 2.2rem;
-  }
-
-  .voting-countdown {
-    padding: 40px;
-  }
-
-  .voting-countdown .countdown-number {
-    font-size: 5rem;
-  }
-
+/* RESPONSIVE */
+@media (max-width: 767px) {
   .players-voting-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
   }
-
-  .voting-results h2 {
-    font-size: 2.5rem;
-  }
-}
-
-/* RESPONSIVE - Móviles pequeños */
-@media (max-width: 480px) {
-  .voting-screen {
-    padding: 20px;
-  }
-
-  .voting-header h2 {
-    font-size: 2rem;
-  }
-
-  .voting-countdown {
-    padding: 35px 25px;
-    margin: 40px 0;
-  }
-
-  .voting-countdown .countdown-number {
-    font-size: 4.5rem;
-  }
-
-  .voting-countdown p {
-    font-size: 1.2rem;
-  }
-
-  .voting-instruction {
-    padding: 20px;
-  }
-
-  .voting-instruction p {
-    font-size: 1rem;
-  }
-
-  .vote-count {
-    font-size: 1.2rem !important;
-  }
-
-  .players-voting-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .player-vote-card {
-    padding: 15px;
-  }
-
+  
   .player-vote-avatar {
-    width: 75px;
-    height: 75px;
-  }
-
-  .player-vote-name {
-    font-size: 0.95rem;
-  }
-
-  .vote-indicator {
-    width: 30px;
-    height: 30px;
-    font-size: 1.1rem;
-  }
-
-  .vote-badge {
-    width: 25px;
-    height: 25px;
-    font-size: 0.85rem;
-  }
-
-  .btn-confirm-vote {
-    padding: 14px 35px;
-    font-size: 1.1rem;
-  }
-
-  .voting-results h2 {
-    font-size: 2.2rem;
-    margin-bottom: 30px;
-  }
-
-  .eliminated-card {
-    padding: 28px 22px;
-  }
-
-  .eliminated-avatar {
-    width: 110px;
-    height: 110px;
-  }
-
-  .eliminated-card h3 {
-    font-size: 1.7rem;
-  }
-
-  .eliminated-votes {
-    font-size: 1.15rem;
-  }
-
-  .role-reveal {
-    font-size: 1.2rem;
-    padding: 14px 24px;
-  }
-
-  .game-over h3, .game-continue h3 {
-    font-size: 1.7rem;
-  }
-
-  .game-over p, .game-continue p {
-    font-size: 1rem;
-  }
-
-  .btn-continue, .btn-lobby {
-    padding: 15px 30px;
-    font-size: 1.1rem;
-  }
-
-  .waiting-host p {
-    font-size: 1.1rem;
-  }
-}
-
-/* RESPONSIVE - Pantallas grandes */
-@media (min-width: 1024px) {
-  .players-voting-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 20px;
-  }
-
-  .player-vote-avatar {
-    width: 95px;
-    height: 95px;
+    width: 70px;
+    height: 70px;
   }
 }

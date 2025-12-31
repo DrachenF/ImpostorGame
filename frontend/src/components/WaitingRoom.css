@@ -1,4 +1,4 @@
-/* WaitingRoom.css - Versión Minimalista Rojo/Blanco/Negro */
+/* WaitingRoom.css - Versión Compacta y Simétrica */
 
 .waiting-room-container {
   min-height: 100vh;
@@ -95,11 +95,6 @@
 .btn-copy:hover {
   background: #B91C1C;
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
-}
-
-.btn-copy:active {
-  transform: scale(0.95);
 }
 
 .players-section {
@@ -111,7 +106,6 @@
   margin-bottom: 18px;
   font-size: 1.5rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
 }
 
 .players-list {
@@ -128,14 +122,7 @@
   background: white;
   border: 2px solid #E5E7EB;
   border-radius: 12px;
-  transition: all 0.3s ease;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-}
-
-.player-item:hover {
-  border-color: #DC2626;
-  transform: translateX(5px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .player-info {
@@ -150,19 +137,12 @@
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #DC2626;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
-}
-
-.player-item:hover .player-avatar-img {
-  transform: scale(1.1);
 }
 
 .player-name {
   font-weight: 800;
   color: #000;
   font-size: 1.1rem;
-  letter-spacing: 0.3px;
 }
 
 .player-actions {
@@ -178,8 +158,6 @@
   border-radius: 25px;
   font-size: 0.9rem;
   font-weight: 800;
-  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.3);
-  letter-spacing: 0.5px;
 }
 
 .btn-kick {
@@ -194,20 +172,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.3);
   font-weight: 900;
 }
 
-.btn-kick:hover {
-  background: #B91C1C;
-  transform: scale(1.15);
-  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+/* ✅ ÚNICO CAMBIO (SIN CAMBIAR LAYOUT): usamos OUTLINE en vez de border */
+.player-item.current-player-card {
+  outline: 3px solid #10B981;     /* verde */
+  outline-offset: 0;              /* pegado a la tarjeta */
+  background: #ecfdf5;            /* suave */
 }
 
-.btn-kick:active {
-  transform: scale(0.95);
+.player-item.current-player-card .player-name {
+  color: #047857;
+  font-weight: 900;
 }
+/* --- fin del cambio --- */
 
 .game-info-section {
   display: grid;
@@ -222,14 +201,7 @@
   border-radius: 15px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
-}
-
-.info-card:hover {
-  border-color: #DC2626;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .info-icon {
@@ -238,18 +210,18 @@
   margin-bottom: 10px;
 }
 
-.info-text {
-  color: #666;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
 .info-text strong {
   color: #DC2626;
   font-size: 1.6rem;
   font-weight: 900;
   display: block;
   margin-bottom: 5px;
+}
+
+.info-text {
+  color: #666;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .host-controls {
@@ -268,7 +240,7 @@
   font-weight: 900;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .btn-settings {
@@ -277,56 +249,16 @@
   color: #000;
 }
 
-.btn-settings:hover {
-  background: #000;
-  color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.btn-settings:active {
-  transform: translateY(-1px);
-}
-
 .btn-start {
   background: #DC2626;
   border-color: #DC2626;
   color: white;
 }
 
-.btn-start:hover:not(:disabled) {
-  background: #B91C1C;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-}
-
-.btn-start:active:not(:disabled) {
-  transform: translateY(-1px);
-}
-
 .btn-start:disabled {
   background: #9CA3AF;
   border-color: #9CA3AF;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   opacity: 0.5;
-}
-
-.btn-vote {
-  background: #DC2626;
-  border-color: #DC2626;
-  color: white;
-}
-
-.btn-vote:hover {
-  background: #B91C1C;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-}
-
-.btn-vote:active {
-  transform: translateY(-1px);
 }
 
 .warning-text {
@@ -338,7 +270,6 @@
   background: #DC2626;
   padding: 12px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
 }
 
 .waiting-message {
@@ -350,30 +281,10 @@
   margin-top: 25px;
 }
 
-.waiting-message p {
-  color: #000;
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0;
-}
-
 .loading, .error {
   text-align: center;
   color: #000;
   padding: 40px;
-}
-
-.loading h2, .error h2 {
-  font-size: 2rem;
-  font-weight: 900;
-  margin-bottom: 20px;
-  color: #DC2626;
-}
-
-.error p {
-  font-size: 1.1rem;
-  margin-bottom: 25px;
-  color: #666;
 }
 
 .btn-primary {
@@ -384,144 +295,52 @@
   border-radius: 10px;
   font-size: 1.1rem;
   font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
 }
 
-.btn-primary:hover {
-  background: #B91C1C;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-}
-
-/* RESPONSIVE - Tablets */
-@media (max-width: 1023px) and (min-width: 768px) {
-  .waiting-room-card {
-    max-width: 700px;
-    padding: 45px;
-  }
-
-  .room-title {
-    font-size: 2.8rem;
-  }
-}
-
-/* RESPONSIVE - Móviles */
-@media (max-width: 767px) and (min-width: 481px) {
-  .waiting-room-card {
-    padding: 35px 25px;
-  }
-
-  .room-title {
-    font-size: 2.2rem;
-  }
-
-  .code {
-    font-size: 2rem;
-  }
-
-  .game-info-section {
-    gap: 15px;
-  }
-}
-
-/* RESPONSIVE - Móviles pequeños */
 @media (max-width: 480px) {
   .waiting-room-card {
-    padding: 30px 20px;
-    border-radius: 18px;
+    padding: 20px 15px;
   }
 
   .room-title {
-    font-size: 1.9rem;
-    margin-bottom: 25px;
-  }
-
-  .time-remaining-badge {
-    font-size: 13px;
-    padding: 8px 16px;
+    font-size: 1.8rem;
     margin-bottom: 20px;
   }
 
+  .game-info-section {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .info-card {
+    padding: 10px;
+  }
+
+  .info-icon {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+  }
+
+  .info-text strong {
+    font-size: 1.3rem;
+  }
+
+  .info-text {
+    font-size: 0.85rem;
+  }
+
   .room-code-section {
-    padding: 20px;
-    margin-bottom: 30px;
+    padding: 15px;
+    margin-bottom: 20px;
   }
 
   .code {
     font-size: 1.8rem;
-    letter-spacing: 3px;
-  }
-
-  .btn-copy {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-
-  .code-display {
-    gap: 12px;
-  }
-
-  .players-section h3 {
-    font-size: 1.3rem;
-  }
-
-  .player-item {
-    padding: 12px 15px;
-  }
-
-  .player-avatar-img {
-    width: 45px;
-    height: 45px;
-  }
-
-  .player-name {
-    font-size: 1rem;
-  }
-
-  .btn-kick {
-    width: 32px;
-    height: 32px;
-    font-size: 1.1rem;
-  }
-
-  .game-info-section {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .info-icon {
-    font-size: 2rem;
-  }
-
-  .info-text strong {
-    font-size: 1.4rem;
   }
 
   .btn {
-    padding: 15px 25px;
+    padding: 12px 20px;
     font-size: 1rem;
-  }
-
-  .warning-text {
-    font-size: 0.95rem;
-    padding: 10px;
-  }
-}
-
-/* RESPONSIVE - Pantallas grandes */
-@media (min-width: 1024px) {
-  .waiting-room-card {
-    max-width: 750px;
-    padding: 50px;
-  }
-
-  .room-title {
-    font-size: 3rem;
-  }
-
-  .btn:hover {
-    transform: translateY(-4px);
   }
 }

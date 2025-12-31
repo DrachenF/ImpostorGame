@@ -1,3 +1,5 @@
+// src/utils/categories.js
+
 // Importar las imágenes
 import animalesImg from '../assets/categorias/animales.png';
 import comidaImg from '../assets/categorias/comida.png';
@@ -9,147 +11,445 @@ import redesImg from '../assets/categorias/redes.png';
 import bibliaImg from '../assets/categorias/biblia.png';
 import famososImg from '../assets/categorias/famosos.png';
 import peliculasImg from '../assets/categorias/peliculas-series.png';
-import transportesImg from '../assets/categorias/trasportes.png';
+import transportesImg from '../assets/categorias/trasportes.png'; // Ojo: en tu carpeta dice "trasportes" sin N, así que esto está bien.
 import feoImg from '../assets/categorias/CosasQueHuelenFeo.png';
 import verguenzaImg from '../assets/categorias/CosasQueDanVerguenza.png';
 import escondidasImg from '../assets/categorias/CosasQueLaGenteHaceAEscondidas.png';
 
+// 👇 AQUÍ ESTABA EL ERROR (Lo cambié a minúscula)
+import FutbolistaImg from '../assets/categorias/futbolista.png'; 
+
 export const categories = [
+  // ... (El resto del código sigue igual)
   {
     id: 'animales',
-    name: 'Animales',
+    name: '🐶 Animales',
     image: animalesImg,
     words: [
-      'perro', 'gato', 'elefante', 'león', 'tigre', 'jirafa', 'cebra', 'mono', 'oso', 'lobo',
-      'panda', 'hipopótamo', 'cocodrilo', 'serpiente', 'águila', 'halcón', 'pingüino', 'ballena', 'delfín', 'zorro',
-      'koala', 'rinoceronte', 'camello', 'caballo', 'burro', 'ardilla', 'mapache', 'mariposa', 'araña', 'ciervo'
+      { text: 'Perro', similar: 'Lobo', clues: { easy: 'Collar', hard: 'Hueso' } },
+      { text: 'Gato', similar: 'Tigre', clues: { easy: 'Bigotes', hard: 'Techo' } },
+      { text: 'León', similar: 'Tigre', clues: { easy: 'Rey', hard: 'Melena' } },
+      { text: 'Elefante', similar: 'Rinoceronte', clues: { easy: 'Trompa', hard: 'Mani' } },
+      { text: 'Jirafa', similar: 'Cebra', clues: { easy: 'Alta', hard: 'Cuello' } },
+      { text: 'Mono', similar: 'Gorila', clues: { easy: 'Banana', hard: 'Cola' } },
+      { text: 'Oso', similar: 'Panda', clues: { easy: 'Miel', hard: 'Cueva' } },
+      { text: 'Pingüino', similar: 'Pato', clues: { easy: 'Hielo', hard: 'Frac' } },
+      { text: 'Ballena', similar: 'Delfín', clues: { easy: 'Mar', hard: 'Gigante' } },
+      { text: 'Delfín', similar: 'Tiburón', clues: { easy: 'Salto', hard: 'Sonar' } },
+      { text: 'Águila', similar: 'Halcón', clues: { easy: 'Volar', hard: 'Nido' } },
+      { text: 'Serpiente', similar: 'Lombriz', clues: { easy: 'Veneno', hard: 'Suelo' } },
+      { text: 'Caballo', similar: 'Burro', clues: { easy: 'Montar', hard: 'Establo' } },
+      { text: 'Vaca', similar: 'Toro', clues: { easy: 'Leche', hard: 'Muu' } },
+      { text: 'Gallina', similar: 'Pato', clues: { easy: 'Huevo', hard: 'Maíz' } },
+      { text: 'Conejo', similar: 'Liebre', clues: { easy: 'Zanahoria', hard: 'Orejas' } },
+      { text: 'Rana', similar: 'Sapo', clues: { easy: 'Verde', hard: 'Charco' } },
+      { text: 'Araña', similar: 'Escorpión', clues: { easy: 'Patas', hard: 'Red' } },
+      { text: 'Mariposa', similar: 'Abeja', clues: { easy: 'Alas', hard: 'Colores' } },
+      { text: 'Panda', similar: 'Oso', clues: { easy: 'Bambú', hard: 'China' } },
+      { text: 'Koala', similar: 'Perezoso', clues: { easy: 'Eucalipto', hard: 'Abrazo' } },
+      { text: 'Canguro', similar: 'Conejo', clues: { easy: 'Bolsa', hard: 'Salto' } },
+      { text: 'Cocodrilo', similar: 'Caimán', clues: { easy: 'Dientes', hard: 'Pantano' } },
+      { text: 'Tortuga', similar: 'Caracol', clues: { easy: 'Lenta', hard: 'Caparazón' } },
+      { text: 'Murciélago', similar: 'Vampiro', clues: { easy: 'Cueva', hard: 'Noche' } }
     ]
   },
   {
-    id: 'comida',
-    name: 'Comida',
-    image: comidaImg,
+    id: 'futbolistas',
+    name: '⚽ Futbolistas',
+    image: FutbolistaImg,
     words: [
-      'pizza', 'hamburguesa', 'tacos', 'sushi', 'pasta', 'helado', 'ensalada', 'sopa', 'sandwich', 'burrito',
-      'pollo frito', 'nuggets', 'frijoles', 'arroz', 'steak', 'filete', 'pescado', 'camarones', 'donas', 'hot dog',
-      'quesadilla', 'nachos', 'ensalada cesar', 'manzana', 'mango', 'piña', 'uvas', 'brownie', 'gelatina', 'cereal',
-      'tamales', 'churros', 'arepas', 'empanadas', 'ceviche', 'gazpacho', 'paella', 'fondue', 'crepas', 'Chuchitos',
-      'pupusas'
-    ]
-  },
-  {
-    id: 'deportes',
-    name: 'Deportes',
-    image: deportesImg,
-    words: [
-      'fútbol', 'basketball', 'tenis', 'voleibol', 'natación', 'atletismo', 'boxeo', 'ciclismo', 'golf', 'hockey',
-      'béisbol', 'karate', 'taekwondo', 'surf', 'skateboard', 'parkour', 'halterofilia', 'remo', 'rugby', 'ping pong',
-      'bádminton', 'ajedrez', 'automovilismo', 'motocross', 'patinaje', 'gimnasia', 'triatlón', 'kickboxing', 'paintball', 'cricket'
-    ]
-  },
-  {
-    id: 'profesiones',
-    name: 'Profesiones',
-    image: profesionesImg,
-    words: [
-      'doctor', 'ingeniero', 'profesor', 'chef', 'policía', 'bombero', 'abogado', 'arquitecto', 'programador', 'artista',
-      'enfermero', 'piloto', 'cantante', 'actor', 'diseñador', 'electricista', 'plomero', 'psicólogo', 'dentista', 'científico',
-      'astronauta', 'periodista', 'fotógrafo', 'mecánico', 'soldado', 'veterinario', 'carpintero', 'panadero', 'barbero', 'contador'
-    ]
-  },
-  {
-    id: 'paises',
-    name: 'Países',
-    image: paisesImg,
-    words: [
-      'México', 'España', 'Argentina', 'Brasil', 'Francia', 'Italia', 'Japón', 'Alemania', 'China', 'India',
-      'Portugal', 'Chile', 'Perú', 'Colombia', 'Canadá', 'Rusia', 'Egipto', 'Sudáfrica', 'Australia', 'Grecia',
-      'Corea del Sur', 'Filipinas', 'Noruega', 'Suecia', 'Finlandia', 'Irlanda', 'Holanda', 'Polonia', 'Marruecos', 'Venezuela'
-    ]
-  },
-  {
-    id: 'objetos',
-    name: 'Objetos',
-    image: objetosImg,
-    words: [
-      'silla', 'mesa', 'lámpara', 'libro', 'reloj', 'teléfono', 'computadora', 'bolígrafo', 'llave', 'botella',
-      'caja', 'cuchara', 'tenedor', 'plato', 'control remoto', 'cartera', 'lentes', 'cargador', 'tarjeta', 'cable',
-      'monitor', 'audífonos', 'mouse', 'teclado', 'calculadora', 'borrador', 'cuaderno', 'ventilador', 'escoba', 'cepillo'
-    ]
-  },
-  {
-    id: 'redes',
-    name: 'Redes Sociales',
-    image: redesImg,
-    words: [
-      'Facebook', 'Instagram', 'Twitter', 'TikTok', 'YouTube', 'WhatsApp', 'Telegram', 'Snapchat', 'Discord', 'Reddit',
-      'LinkedIn', 'Twitch', 'Pinterest',  'Messenger'
-    ]
-  },
-  {
-    id: 'biblia',
-    name: 'Biblia',
-    image: bibliaImg,
-    words: [
-      'Jesús', 'Moisés', 'Noé', 'David', 'Goliat', 'Jonás', 'Adán', 'Eva', 'Abraham', 'Pablo',
-      'Pedro', 'José', 'María', 'Elías', 'Satanás', 'Apocalipsis', 'Salmos', 'Genesis', 'Éxodo', 'Arca de Noé'
+      // --- LEYENDAS ---
+      { text: 'Messi', similar: 'Maradona', clues: { easy: 'Argentina', hard: 'Cabra' } },
+      { text: 'Cristiano', similar: 'Messi', clues: { easy: 'Siuuu', hard: 'Portugal' } },
+      { text: 'Pelé', similar: 'Maradona', clues: { easy: 'Brasil', hard: 'Rey' } },
+      { text: 'Maradona', similar: 'Messi', clues: { easy: 'Mano', hard: 'Dios' } },
+      { text: 'Ronaldo Nazario', similar: 'Ronaldinho', clues: { easy: 'Fenómeno', hard: 'Corte' } },
+      { text: 'Ronaldinho', similar: 'Neymar', clues: { easy: 'Magia', hard: 'Sonrisa' } },
+      { text: 'Zidane', similar: 'Platini', clues: { easy: 'Calvo', hard: 'Cabezazo' } },
+      { text: 'Cruyff', similar: 'Beckenbauer', clues: { easy: 'Holanda', hard: 'Total' } },
+      { text: 'Di Stéfano', similar: 'Puskas', clues: { easy: 'Saeta', hard: 'Madrid' } },
+      // --- ACTUALES ---
+      { text: 'Mbappé', similar: 'Haaland', clues: { easy: 'Tortuga', hard: 'Rápido' } },
+      { text: 'Haaland', similar: 'Mbappé', clues: { easy: 'Robot', hard: 'Rubio' } },
+      { text: 'Vinicius Jr', similar: 'Neymar', clues: { easy: 'Bailar', hard: 'Madrid' } },
+      { text: 'Neymar', similar: 'Vinicius Jr', clues: { easy: 'Caídas', hard: 'Brasil' } },
+      { text: 'Lewandowski', similar: 'Kane', clues: { easy: 'Goles', hard: 'Polaco' } },
+      { text: 'Benzema', similar: 'Suárez', clues: { easy: 'Gato', hard: 'Balón Oro' } },
+      { text: 'Luis Suárez', similar: 'Cavani', clues: { easy: 'Mordida', hard: 'Pistolero' } },
+      { text: 'Salah', similar: 'Mané', clues: { easy: 'Faraón', hard: 'Liverpool' } },
+      { text: 'Bellingham', similar: 'Vinicius Jr', clues: { easy: 'Hey Jude', hard: 'Brazos' } },
+      { text: 'Lamine Yamal', similar: 'Ansu Fati', clues: { easy: 'Joven', hard: '304' } },
+      { text: 'Griezmann', similar: 'Giroud', clues: { easy: 'Principito', hard: 'Mate' } },
+      { text: 'Julián Álvarez', similar: 'Lautaro', clues: { easy: 'Araña', hard: 'City' } },
+      { text: 'Modric', similar: 'Kroos', clues: { easy: 'Croacia', hard: 'Mago' } },
+      { text: 'Kroos', similar: 'Modric', clues: { easy: 'Precisión', hard: 'Botas' } },
+      { text: 'Iniesta', similar: 'Xavi', clues: { easy: 'Cerebro', hard: 'Gol Mundial' } },
+      { text: 'De Bruyne', similar: 'Kroos', clues: { easy: 'Colorado', hard: 'Asistencias' } },
+      { text: 'Busquets', similar: 'Rodri', clues: { easy: 'Pulpo', hard: 'Lento' } },
+      { text: 'Rodri', similar: 'Busquets', clues: { easy: 'Balón Oro', hard: 'City' } },
+      { text: 'Pedri', similar: 'Gavi', clues: { easy: 'Canarias', hard: 'Joven' } },
+      { text: 'Pirlo', similar: 'Gattuso', clues: { easy: 'Barba', hard: 'Clase' } },
+      { text: 'Kaká', similar: 'Ronaldinho', clues: { easy: 'Milan', hard: 'Religioso' } },
+      { text: 'Lampard', similar: 'Gerrard', clues: { easy: 'Chelsea', hard: 'Goles' } },
+      { text: 'Pogba', similar: 'Kanté', clues: { easy: 'Peinados', hard: 'Pulpo' } },
+      { text: 'Valverde', similar: 'Gerrard', clues: { easy: 'Pajarito', hard: 'Uruguay' } },
+      { text: 'Ozil', similar: 'Di María', clues: { easy: 'Ojos', hard: 'Asistencia' } },
+      { text: 'Riquelme', similar: 'Aimar', clues: { easy: 'Boca', hard: 'Lento' } },
+      { text: 'James', similar: 'Falcao', clues: { easy: 'Colombia', hard: 'Zurda' } },
+      { text: 'Vidal', similar: 'Sánchez', clues: { easy: 'Cresta', hard: 'Rey' } },
+      { text: 'Sergio Ramos', similar: 'Piqué', clues: { easy: 'Camero', hard: 'Tarjeta' } },
+      { text: 'Piqué', similar: 'Ramos', clues: { easy: 'Shakira', hard: 'Presidente' } },
+      { text: 'Puyol', similar: 'Ramos', clues: { easy: 'Pelo', hard: 'Capitán' } },
+      { text: 'Maldini', similar: 'Nesta', clues: { easy: 'Eterno', hard: 'Milan' } },
+      { text: 'Van Dijk', similar: 'Ramos', clues: { easy: 'Gigante', hard: 'Moño' } },
+      { text: 'Marcelo', similar: 'Alves', clues: { easy: 'Pelo', hard: 'Técnica' } },
+      { text: 'Dani Alves', similar: 'Marcelo', clues: { easy: 'Títulos', hard: 'Lateral' } },
+      { text: 'Roberto Carlos', similar: 'Marcelo', clues: { easy: 'Potencia', hard: 'Calvo' } },
+      { text: 'Pepe', similar: 'Ramos', clues: { easy: 'Duro', hard: 'Calvo' } },
+      { text: 'Davies', similar: 'Alaba', clues: { easy: 'Rápido', hard: 'Canadá' } },
+      { text: 'Hakimi', similar: 'Trent', clues: { easy: 'Marruecos', hard: 'PSG' } },
+      { text: 'Jordi Alba', similar: 'Marcelo', clues: { easy: 'Zurdo', hard: 'Messi' } },
+      { text: 'Araujo', similar: 'Rudiger', clues: { easy: 'Uruguay', hard: 'Fuerte' } },
+      { text: 'Casillas', similar: 'Buffon', clues: { easy: 'Santo', hard: 'Parada' } },
+      { text: 'Buffon', similar: 'Casillas', clues: { easy: 'Eterno', hard: 'Juve' } },
+      { text: 'Neuer', similar: 'Ter Stegen', clues: { easy: 'Líbero', hard: 'Alemania' } },
+      { text: 'Courtois', similar: 'Oblak', clues: { easy: 'Jirafa', hard: 'Madrid' } },
+      { text: 'Ter Stegen', similar: 'Neuer', clues: { easy: 'Pelo', hard: 'Barcelona' } },
+      { text: 'Dibu Martínez', similar: 'Armani', clues: { easy: 'Bailes', hard: 'Penales' } },
+      { text: 'Keylor Navas', similar: 'Ochoa', clues: { easy: 'Halcón', hard: 'Pura Vida' } },
+      { text: 'Memo Ochoa', similar: 'Keylor', clues: { easy: 'Rizos', hard: 'Mundiales' } },
+      { text: 'Alisson', similar: 'Ederson', clues: { easy: 'Barba', hard: 'Liverpool' } },
+      { text: 'Yashin', similar: 'Buffon', clues: { easy: 'Araña', hard: 'Negro' } },
+      { text: 'Chilavert', similar: 'Ceni', clues: { easy: 'Goles', hard: 'Paraguay' } },
+      { text: 'Campos', similar: 'Higuita', clues: { easy: 'Colores', hard: 'Delantero' } },
+      { text: 'Higuita', similar: 'Campos', clues: { easy: 'Escorpión', hard: 'Loco' } },
+      { text: 'Ibra', similar: 'Haaland', clues: { easy: 'Dios', hard: 'Nariz' } },
+      { text: 'Bale', similar: 'Neymar', clues: { easy: 'Golf', hard: 'Gales' } },
+      { text: 'Totti', similar: 'Del Piero', clues: { easy: 'Roma', hard: 'Emperador' } },
+      { text: 'Beckham', similar: 'Grealish', clues: { easy: 'Modelo', hard: 'Inglés' } },
+      { text: 'Rooney', similar: 'Kane', clues: { easy: 'Shrek', hard: 'Boxeo' } },
+      { text: 'Kun Aguero', similar: 'Tevez', clues: { easy: 'Streamer', hard: 'City' } },
+      { text: 'Hazard', similar: 'Neymar', clues: { easy: 'Hamburguesa', hard: 'Chelsea' } },
+      { text: 'Maguire', similar: 'Piqué', clues: { easy: 'Cabeza', hard: 'Meme' } },
+      { text: 'Balotelli', similar: 'Pogba', clues: { easy: 'Loco', hard: 'Why Always Me' } },
+      { text: 'Chicharito', similar: 'Jiménez', clues: { easy: 'Chícharo', hard: 'Goleador' } },
+      { text: 'Lukaku', similar: 'Drogba', clues: { easy: 'Fuerte', hard: 'Fallas' } },
+      { text: 'Ribery', similar: 'Robben', clues: { easy: 'Cicatriz', hard: 'Bayern' } },
+      { text: 'Robben', similar: 'Ribery', clues: { easy: 'Calvo', hard: 'Zurda' } }
     ]
   },
   {
     id: 'famosos',
-    name: 'Famosos',
+    name: '🌟 Famosos',
     image: famososImg,
     words: [
-      'Messi', 'Cristiano', 'Bad Bunny', 'Kim Kardashian', 'Shakira', 'The Rock', 'Eminem', 'Taylor Swift', 'Selena Gomez', 'Lionel Messi',
-      'Will Smith', 'Dwayne Johnson', 'Jennifer Lopez', 'Michael Jackson', 'Drake', 'Rihanna', 'Keanu Reeves', 'Jackie Chan', 'Tom Holland', 'Billie Eilish'
+      { text: 'Bad Bunny', similar: 'Anuel', clues: { easy: 'Conejo', hard: 'Benito' } },
+      { text: 'Karol G', similar: 'Becky G', clues: { easy: 'Bichota', hard: 'Pelo' } },
+      { text: 'Shakira', similar: 'JLo', clues: { easy: 'Caderas', hard: 'Loba' } },
+      { text: 'Taylor Swift', similar: 'Katy Perry', clues: { easy: 'Rubia', hard: 'Exs' } },
+      { text: 'Justin Bieber', similar: 'Shawn Mendes', clues: { easy: 'Baby', hard: 'Canadá' } },
+      { text: 'Daddy Yankee', similar: 'Don Omar', clues: { easy: 'Gasolina', hard: 'Jefe' } },
+      { text: 'Rosalía', similar: 'Karol G', clues: { easy: 'Motomami', hard: 'Uñas' } },
+      { text: 'Peso Pluma', similar: 'Natanael', clues: { easy: 'Doble P', hard: 'Corte' } },
+      { text: 'Feid', similar: 'Maluma', clues: { easy: 'Ferxxo', hard: 'Verde' } },
+      { text: 'Maluma', similar: 'J Balvin', clues: { easy: 'Baby', hard: 'Hawái' } },
+      { text: 'Rihanna', similar: 'Beyoncé', clues: { easy: 'Paraguas', hard: 'Maquillaje' } },
+      { text: 'Beyoncé', similar: 'Rihanna', clues: { easy: 'Queen', hard: 'JayZ' } },
+      { text: 'Michael Jackson', similar: 'Elvis', clues: { easy: 'Rey', hard: 'Guante' } },
+      { text: 'Eminem', similar: 'Snoop Dogg', clues: { easy: 'Rap', hard: 'Blanco' } },
+      { text: 'Snoop Dogg', similar: 'Wiz Khalifa', clues: { easy: 'Humo', hard: 'Perro' } },
+      { text: 'Will Smith', similar: 'The Rock', clues: { easy: 'Cachetada', hard: 'Príncipe' } },
+      { text: 'The Rock', similar: 'Vin Diesel', clues: { easy: 'Músculos', hard: 'Ceja' } },
+      { text: 'Tom Holland', similar: 'Timothée', clues: { easy: 'Araña', hard: 'Zendaya' } },
+      { text: 'Zendaya', similar: 'Jenna Ortega', clues: { easy: 'Dune', hard: 'Modelo' } },
+      { text: 'Jenna Ortega', similar: 'Zendaya', clues: { easy: 'Merlina', hard: 'Gótica' } },
+      { text: 'Johnny Depp', similar: 'Brad Pitt', clues: { easy: 'Pirata', hard: 'Juicio' } },
+      { text: 'Leonardo DiCaprio', similar: 'Brad Pitt', clues: { easy: 'Titanic', hard: 'Oscar' } },
+      { text: 'Brad Pitt', similar: 'DiCaprio', clues: { easy: 'Rubio', hard: 'Galán' } },
+      { text: 'Margot Robbie', similar: 'Scarlett', clues: { easy: 'Barbie', hard: 'Harley' } },
+      { text: 'Robert Downey Jr', similar: 'Chris Evans', clues: { easy: 'IronMan', hard: 'Traje' } },
+      { text: 'Adam Sandler', similar: 'Jim Carrey', clues: { easy: 'Comedia', hard: 'Niños' } },
+      { text: 'Jim Carrey', similar: 'Adam Sandler', clues: { easy: 'Muecas', hard: 'Máscara' } },
+      { text: 'Keanu Reeves', similar: 'Tom Cruise', clues: { easy: 'John Wick', hard: 'Perro' } },
+      { text: 'Tom Cruise', similar: 'Keanu Reeves', clues: { easy: 'Misión', hard: 'Dobles' } },
+      { text: 'Kim Kardashian', similar: 'Kylie Jenner', clues: { easy: 'Curvas', hard: 'Kanye' } },
+      { text: 'Kylie Jenner', similar: 'Kim Kardashian', clues: { easy: 'Labios', hard: 'Maquillaje' } },
+      { text: 'MrBeast', similar: 'PewDiePie', clues: { easy: 'Dinero', hard: 'Retos' } },
+      { text: 'Elon Musk', similar: 'Zuckerberg', clues: { easy: 'Tesla', hard: 'Twitter' } },
+      { text: 'Mark Zuckerberg', similar: 'Elon Musk', clues: { easy: 'Facebook', hard: 'Robot' } },
+      { text: 'Ibai', similar: 'Auron', clues: { easy: 'Gordo', hard: 'Twitch' } },
+      { text: 'AuronPlay', similar: 'Rubius', clues: { easy: 'Calvo', hard: 'Abduzcan' } },
+      { text: 'Luisito Comunica', similar: 'MrBeast', clues: { easy: 'Viajes', hard: 'Pillo' } },
+      { text: 'Georgina', similar: 'Antonela', clues: { easy: 'Bolsas', hard: 'Soy' } },
+      { text: 'Karely Ruiz', similar: 'Kimberly Loaiza', clues: { easy: 'Azul', hard: 'Modelo' } }
+    ]
+  },
+  {
+    id: 'comida',
+    name: '🍔 Comida',
+    image: comidaImg,
+    words: [
+      { text: 'Pizza', similar: 'Hamburguesa', clues: { easy: 'Redonda', hard: 'Queso' } },
+      { text: 'Hamburguesa', similar: 'Pizza', clues: { easy: 'Carne', hard: 'Pan' } },
+      { text: 'Tacos', similar: 'Burrito', clues: { easy: 'Tortilla', hard: 'Salsa' } },
+      { text: 'Sushi', similar: 'Ceviche', clues: { easy: 'Rollo', hard: 'Arroz' } },
+      { text: 'Helado', similar: 'Nieve', clues: { easy: 'Frío', hard: 'Cono' } },
+      { text: 'Ensalada', similar: 'Verduras', clues: { easy: 'Verde', hard: 'Dieta' } },
+      { text: 'Sopa', similar: 'Caldo', clues: { easy: 'Cuchara', hard: 'Caliente' } },
+      { text: 'Pollo Frito', similar: 'Alitas', clues: { easy: 'Crujiente', hard: 'Hueso' } },
+      { text: 'Frijoles', similar: 'Arroz', clues: { easy: 'Negros', hard: 'Tierra' } },
+      { text: 'Arroz', similar: 'Frijoles', clues: { easy: 'Blanco', hard: 'Grano' } },
+      { text: 'Pescado', similar: 'Camarones', clues: { easy: 'Mar', hard: 'Espinas' } },
+      { text: 'Donas', similar: 'Churros', clues: { easy: 'Agujero', hard: 'Policía' } },
+      { text: 'Hot Dog', similar: 'Hamburguesa', clues: { easy: 'Salchicha', hard: 'Largo' } },
+      { text: 'Nachos', similar: 'Papas', clues: { easy: 'Queso', hard: 'Cine' } },
+      { text: 'Manzana', similar: 'Pera', clues: { easy: 'Roja', hard: 'Maestra' } },
+      { text: 'Piña', similar: 'Coco', clues: { easy: 'Corona', hard: 'Amarilla' } },
+      { text: 'Cereal', similar: 'Avena', clues: { easy: 'Leche', hard: 'Caja' } },
+      { text: 'Tamales', similar: 'Chuchitos', clues: { easy: 'Hoja', hard: 'Masa' } },
+      { text: 'Pupusas', similar: 'Arepas', clues: { easy: 'Queso', hard: 'El Salvador' } },
+      { text: 'Ceviche', similar: 'Coctel', clues: { easy: 'Limón', hard: 'Marisco' } }
+    ]
+  },
+  {
+    id: 'deportes',
+    name: '⚽ Deportes',
+    image: deportesImg,
+    words: [
+      { text: 'Fútbol', similar: 'Futsal', clues: { easy: 'Gol', hard: 'Balón' } },
+      { text: 'Basketball', similar: 'Voleibol', clues: { easy: 'Canasta', hard: 'NBA' } },
+      { text: 'Tenis', similar: 'Ping Pong', clues: { easy: 'Raqueta', hard: 'Red' } },
+      { text: 'Natación', similar: 'Surf', clues: { easy: 'Agua', hard: 'Piscina' } },
+      { text: 'Boxeo', similar: 'Lucha', clues: { easy: 'Guantes', hard: 'Ring' } },
+      { text: 'Ciclismo', similar: 'MotoGP', clues: { easy: 'Bici', hard: 'Casco' } },
+      { text: 'Béisbol', similar: 'Softbol', clues: { easy: 'Bate', hard: 'Base' } },
+      { text: 'Karate', similar: 'Judo', clues: { easy: 'Cinturón', hard: 'Patada' } },
+      { text: 'Surf', similar: 'Skateboard', clues: { easy: 'Tabla', hard: 'Mar' } },
+      { text: 'Ajedrez', similar: 'Damas', clues: { easy: 'Rey', hard: 'Tablero' } },
+      { text: 'Automovilismo', similar: 'Karting', clues: { easy: 'Carro', hard: 'Carrera' } },
+      { text: 'Gimnasia', similar: 'Ballet', clues: { easy: 'Flex', hard: 'Juegos' } },
+      { text: 'Voleibol', similar: 'Basketball', clues: { easy: 'Red', hard: 'Playa' } },
+      { text: 'Golf', similar: 'Hockey', clues: { easy: 'Hoyo', hard: 'Palo' } },
+      { text: 'Ping Pong', similar: 'Tenis', clues: { easy: 'Mesa', hard: 'China' } }
+    ]
+  },
+  {
+    id: 'profesiones',
+    name: '💼 Profesiones',
+    image: profesionesImg,
+    words: [
+      { text: 'Doctor', similar: 'Enfermero', clues: { easy: 'Hospital', hard: 'Bata' } },
+      { text: 'Ingeniero', similar: 'Arquitecto', clues: { easy: 'Casco', hard: 'Planos' } },
+      { text: 'Profesor', similar: 'Director', clues: { easy: 'Escuela', hard: 'Pizarra' } },
+      { text: 'Chef', similar: 'Mesero', clues: { easy: 'Cocina', hard: 'Gorro' } },
+      { text: 'Policía', similar: 'Guardia', clues: { easy: 'Patrulla', hard: 'Ley' } },
+      { text: 'Bombero', similar: 'Rescatista', clues: { easy: 'Fuego', hard: 'Manguera' } },
+      { text: 'Abogado', similar: 'Juez', clues: { easy: 'Juicio', hard: 'Leyes' } },
+      { text: 'Cantante', similar: 'Actor', clues: { easy: 'Micrófono', hard: 'Voz' } },
+      { text: 'Astronauta', similar: 'Piloto', clues: { easy: 'Espacio', hard: 'Luna' } },
+      { text: 'Mecánico', similar: 'Chofer', clues: { easy: 'Taller', hard: 'Grasa' } },
+      { text: 'Fotógrafo', similar: 'Pintor', clues: { easy: 'Cámara', hard: 'Foto' } },
+      { text: 'Científico', similar: 'Profesor', clues: { easy: 'Lab', hard: 'Experimento' } },
+      { text: 'Veterinario', similar: 'Doctor', clues: { easy: 'Animales', hard: 'Perro' } },
+      { text: 'Carpintero', similar: 'Albañil', clues: { easy: 'Madera', hard: 'Mesa' } },
+      { text: 'Panadero', similar: 'Pastelero', clues: { easy: 'Pan', hard: 'Horno' } }
+    ]
+  },
+  {
+    id: 'lugares',
+    name: '📍 Lugares',
+    image: paisesImg,
+    words: [
+      { text: 'Discoteca', similar: 'Bar', clues: { easy: 'Baile', hard: 'Noche' } },
+      { text: 'Bar', similar: 'Cantina', clues: { easy: 'Cerveza', hard: 'Tragos' } },
+      { text: 'Cine', similar: 'Teatro', clues: { easy: 'Película', hard: 'Palomitas' } },
+      { text: 'Escuela', similar: 'Universidad', clues: { easy: 'Clases', hard: 'Recreo' } },
+      { text: 'Iglesia', similar: 'Cementerio', clues: { easy: 'Misa', hard: 'Rezar' } },
+      { text: 'Cementerio', similar: 'Hospital', clues: { easy: 'Tumbas', hard: 'Flores' } },
+      { text: 'Hospital', similar: 'Clínica', clues: { easy: 'Doctor', hard: 'Enfermo' } },
+      { text: 'Playa', similar: 'Piscina', clues: { easy: 'Arena', hard: 'Mar' } },
+      { text: 'Baño', similar: 'Cocina', clues: { easy: 'Privado', hard: 'Papel' } },
+      { text: 'Motel', similar: 'Hotel', clues: { easy: 'Pareja', hard: 'Secreto' } },
+      { text: 'Supermercado', similar: 'Mercado', clues: { easy: 'Carretilla', hard: 'Cajas' } },
+      { text: 'Gimnasio', similar: 'Parque', clues: { easy: 'Pesas', hard: 'Sudar' } },
+      { text: 'Cárcel', similar: 'Comisaría', clues: { easy: 'Rejas', hard: 'Preso' } },
+      { text: 'Aeropuerto', similar: 'Terminal', clues: { easy: 'Avión', hard: 'Maletas' } },
+      { text: 'Estadio', similar: 'Cancha', clues: { easy: 'Gradas', hard: 'Partido' } }
+    ]
+  },
+  {
+    id: 'objetos',
+    name: '🔨 Objetos',
+    image: objetosImg,
+    words: [
+      { text: 'Silla', similar: 'Sillón', clues: { easy: 'Sentarse', hard: 'Patas' } },
+      { text: 'Mesa', similar: 'Escritorio', clues: { easy: 'Comer', hard: 'Madera' } },
+      { text: 'Celular', similar: 'Tablet', clues: { easy: 'Llamar', hard: 'Chat' } },
+      { text: 'Cama', similar: 'Sofá', clues: { easy: 'Dormir', hard: 'Colchón' } },
+      { text: 'Reloj', similar: 'Pulsera', clues: { easy: 'Tiempo', hard: 'Hora' } },
+      { text: 'Llave', similar: 'Candado', clues: { easy: 'Abrir', hard: 'Metal' } },
+      { text: 'Botella', similar: 'Vaso', clues: { easy: 'Agua', hard: 'Plástico' } },
+      { text: 'Cuchara', similar: 'Tenedor', clues: { easy: 'Sopa', hard: 'Comer' } },
+      { text: 'Control', similar: 'Celular', clues: { easy: 'Botones', hard: 'TV' } },
+      { text: 'Lentes', similar: 'Lupa', clues: { easy: 'Ojos', hard: 'Ver' } },
+      { text: 'Audífonos', similar: 'Bocina', clues: { easy: 'Música', hard: 'Oídos' } },
+      { text: 'Computadora', similar: 'TV', clues: { easy: 'Internet', hard: 'Teclado' } },
+      { text: 'Escoba', similar: 'Trapeador', clues: { easy: 'Barrer', hard: 'Basura' } },
+      { text: 'Zapato', similar: 'Tenis', clues: { easy: 'Pie', hard: 'Suela' } },
+      { text: 'Espejo', similar: 'Ventana', clues: { easy: 'Reflejo', hard: 'Cara' } }
+    ]
+  },
+  {
+    id: 'redes',
+    name: '📱 Redes Sociales',
+    image: redesImg,
+    words: [
+      { text: 'Facebook', similar: 'Twitter', clues: { easy: 'Azul', hard: 'Amigos' } },
+      { text: 'Instagram', similar: 'TikTok', clues: { easy: 'Fotos', hard: 'Filtros' } },
+      { text: 'TikTok', similar: 'YouTube', clues: { easy: 'Bailes', hard: 'Videos' } },
+      { text: 'WhatsApp', similar: 'Telegram', clues: { easy: 'Chat', hard: 'Verde' } },
+      { text: 'YouTube', similar: 'Twitch', clues: { easy: 'Videos', hard: 'Suscribir' } },
+      { text: 'Twitter', similar: 'Threads', clues: { easy: 'Pájaro', hard: 'Hilo' } },
+      { text: 'Tinder', similar: 'Bumble', clues: { easy: 'Citas', hard: 'Fuego' } },
+      { text: 'LinkedIn', similar: 'Correo', clues: { easy: 'Trabajo', hard: 'CV' } },
+      { text: 'Snapchat', similar: 'Instagram', clues: { easy: 'Fantasma', hard: 'Filtro' } },
+      { text: 'Pinterest', similar: 'Instagram', clues: { easy: 'Ideas', hard: 'Tablero' } },
+      { text: 'OnlyFans', similar: 'Twitter', clues: { easy: 'Pago', hard: 'Azul' } },
+      { text: 'Discord', similar: 'Slack', clues: { easy: 'Gamer', hard: 'Voz' } },
+      { text: 'Spotify', similar: 'YouTube', clues: { easy: 'Música', hard: 'Playlist' } },
+      { text: 'Netflix', similar: 'Disney+', clues: { easy: 'Series', hard: 'Películas' } }
+    ]
+  },
+  {
+    id: 'biblia',
+    name: '📖 Biblia',
+    image: bibliaImg,
+    words: [
+      { text: 'Jesús', similar: 'Pedro', clues: { easy: 'Cruz', hard: 'Hijo' } },
+      { text: 'Moisés', similar: 'Noé', clues: { easy: 'Mar', hard: 'Mandamientos' } },
+      { text: 'Noé', similar: 'Moisés', clues: { easy: 'Arca', hard: 'Diluvio' } },
+      { text: 'David', similar: 'Goliat', clues: { easy: 'Rey', hard: 'Piedra' } },
+      { text: 'Goliat', similar: 'Sansón', clues: { easy: 'Gigante', hard: 'Filisteo' } },
+      { text: 'Adán', similar: 'Eva', clues: { easy: 'Primero', hard: 'Hombre' } },
+      { text: 'Eva', similar: 'María', clues: { easy: 'Manzana', hard: 'Mujer' } },
+      { text: 'Satanás', similar: 'Judas', clues: { easy: 'Diablo', hard: 'Malo' } },
+      { text: 'Pedro', similar: 'Pablo', clues: { easy: 'Pescador', hard: 'Llaves' } },
+      { text: 'Jonás', similar: 'Ballena', clues: { easy: 'Pez', hard: 'Tragado' } },
+      { text: 'Sansón', similar: 'Goliat', clues: { easy: 'Pelo', hard: 'Fuerte' } },
+      { text: 'Judas', similar: 'Pedro', clues: { easy: 'Traición', hard: 'Monedas' } },
+      { text: 'María', similar: 'Eva', clues: { easy: 'Madre', hard: 'Virgen' } },
+      { text: 'Ángel', similar: 'Demonio', clues: { easy: 'Alas', hard: 'Cielo' } },
+      { text: 'Cruz', similar: 'Tumba', clues: { easy: 'Madera', hard: 'Símbolo' } }
     ]
   },
   {
     id: 'peliculas-series',
-    name: 'Películas y Series',
+    name: '🎬 Películas y Series',
     image: peliculasImg,
     words: [
-      'Titanic', 'Avatar', 'Harry Potter', 'Star Wars', 'The Avengers', 'Matrix', 'Breaking Bad', 'Game of Thrones', 'Friends', 'Stranger Things',
-      'Naruto', 'Dragon Ball', 'Peaky Blinders', 'Shrek', 'Jurassic Park', 'Toy Story', 'El Rey León', 'Rápidos y Furiosos', 'Narnia', 'Terminator'
+      { text: 'Harry Potter', similar: 'Frodo', clues: { easy: 'Magia', hard: 'Cicatriz' } },
+      { text: 'Titanic', similar: 'Avatar', clues: { easy: 'Barco', hard: 'Iceberg' } },
+      { text: 'Star Wars', similar: 'Star Trek', clues: { easy: 'Espada', hard: 'Padre' } },
+      { text: 'Avengers', similar: 'Liga Justicia', clues: { easy: 'Héroes', hard: 'Marvel' } },
+      { text: 'Shrek', similar: 'Monsters Inc', clues: { easy: 'Verde', hard: 'Ogro' } },
+      { text: 'Toy Story', similar: 'Minions', clues: { easy: 'Juguetes', hard: 'Woody' } },
+      { text: 'Batman', similar: 'Superman', clues: { easy: 'Murciélago', hard: 'Noche' } },
+      { text: 'Joker', similar: 'Pennywise', clues: { easy: 'Payaso', hard: 'Malo' } },
+      { text: 'Coco', similar: 'Encanto', clues: { easy: 'Muertos', hard: 'Guitarra' } },
+      { text: 'Naruto', similar: 'Goku', clues: { easy: 'Ninja', hard: 'Zorro' } },
+      { text: 'Dragon Ball', similar: 'Naruto', clues: { easy: 'Esferas', hard: 'Saiyan' } },
+      { text: 'Squid Game', similar: 'Casa Papel', clues: { easy: 'Juego', hard: 'Verde' } },
+      { text: 'Stranger Things', similar: 'Dark', clues: { easy: 'Once', hard: 'Monstruo' } },
+      { text: 'Breaking Bad', similar: 'Narcos', clues: { easy: 'Drogas', hard: 'Calvo' } },
+      { text: 'Merlina', similar: 'Sabrina', clues: { easy: 'Trenzas', hard: 'Mano' } }
     ]
   },
   {
     id: 'transportes',
-    name: 'Transportes',
+    name: '🚗 Transportes',
     image: transportesImg,
     words: [
-      'avión', 'barco', 'tren', 'moto', 'helicóptero', 'camión', 'tractor', 'submarino', 'scooter', 'autobús',
-      'patineta', 'limusina', 'metro', 'globo aerostático', 'lancha', 'triciclo', 'trimarán', 'yate', 'dron', 'jet privado'
+      { text: 'Avión', similar: 'Helicóptero', clues: { easy: 'Alas', hard: 'Volar' } },
+      { text: 'Barco', similar: 'Submarino', clues: { easy: 'Mar', hard: 'Flotar' } },
+      { text: 'Moto', similar: 'Bici', clues: { easy: 'Casco', hard: 'Dos ruedas' } },
+      { text: 'Carro', similar: 'Camioneta', clues: { easy: 'Llantas', hard: 'Motor' } },
+      { text: 'Bus', similar: 'Tren', clues: { easy: 'Pasajeros', hard: 'Parada' } },
+      { text: 'Tren', similar: 'Metro', clues: { easy: 'Vías', hard: 'Vagón' } },
+      { text: 'Metro', similar: 'Tren', clues: { easy: 'Subterráneo', hard: 'Ciudad' } },
+      { text: 'Helicóptero', similar: 'Avión', clues: { easy: 'Hélice', hard: 'Vertical' } },
+      { text: 'Submarino', similar: 'Barco', clues: { easy: 'Fondo', hard: 'Agua' } },
+      { text: 'Patines', similar: 'Skate', clues: { easy: 'Ruedas', hard: 'Pies' } },
+      { text: 'Globo', similar: 'Paracaídas', clues: { easy: 'Aire', hard: 'Canasta' } },
+      { text: 'Uber', similar: 'Taxi', clues: { easy: 'App', hard: 'Chofer' } },
+      { text: 'Yate', similar: 'Lancha', clues: { easy: 'Lujo', hard: 'Fiesta' } },
+      { text: 'Caballo', similar: 'Burro', clues: { easy: 'Animal', hard: 'Montar' } },
+      { text: 'Tractor', similar: 'Camión', clues: { easy: 'Campo', hard: 'Lento' } }
     ]
   },
   {
     id: 'CosasQueHuelenFeo',
-    name: 'Cosas Que Huelen Feo',
+    name: '🤢 Huelen Feo',
     image: feoImg,
     words: [
-      'axila', 'calcetín sudado', 'queso podrido', 'huevo podrido', 'baño público', 'pez muerto', 'zapato viejo', 'pescado', 'basura', 'perro mojado',
-      'pedo', 'moho', 'alcantarilla', 'leche cortada', 'sudor', 'cebolla cruda', 'pate', 'pañal sucio', 'camiseta sudada', 'pescadería'
+      { text: 'Axila', similar: 'Sudor', clues: { easy: 'Brazo', hard: 'Desodorante' } },
+      { text: 'Calcetín', similar: 'Zapato', clues: { easy: 'Pie', hard: 'Queso' } },
+      { text: 'Pedo', similar: 'Eructo', clues: { easy: 'Gas', hard: 'Sonido' } },
+      { text: 'Basura', similar: 'Pañal', clues: { easy: 'Bolsa', hard: 'Desperdicio' } },
+      { text: 'Baño Público', similar: 'Alcantarilla', clues: { easy: 'Sucio', hard: 'Orina' } },
+      { text: 'Huevo Podrido', similar: 'Pez Muerto', clues: { easy: 'Comida', hard: 'Azufre' } },
+      { text: 'Boca', similar: 'Axila', clues: { easy: 'Aliento', hard: 'Mañana' } },
+      { text: 'Vómito', similar: 'Popó', clues: { easy: 'Enfermo', hard: 'Asco' } },
+      { text: 'Cigarro', similar: 'Humo', clues: { easy: 'Fumar', hard: 'Cenicero' } },
+      { text: 'Perro Mojado', similar: 'Trapo Sucio', clues: { easy: 'Lluvia', hard: 'Pelaje' } },
+      { text: 'Pescadería', similar: 'Carnicería', clues: { easy: 'Mar', hard: 'Fuerte' } },
+      { text: 'Queso Azul', similar: 'Pies', clues: { easy: 'Comida', hard: 'Fuerte' } },
+      { text: 'Leche Cortada', similar: 'Yogur', clues: { easy: 'Blanca', hard: 'Caducada' } },
+      { text: 'Sudor', similar: 'Axila', clues: { easy: 'Calor', hard: 'Humedad' } },
+      { text: 'Cebolla', similar: 'Ajo', clues: { easy: 'Llorar', hard: 'Cocina' } }
     ]
   },
   {
     id: 'CosasQueDanVerguenza',
-    name: 'Cosas Que Dan Vergüenza',
+    name: '😳 Dan Vergüenza',
     image: verguenzaImg,
     words: [
-      'caerse en público', 'confundir a alguien', 'decir un chiste malo', 'saludar y no te responden', 'llamar maestro a tu mamá', 'pedorrearte',
-      'que te regañen en público', 'que te revisen el historial de Google', 'que se te salga un gallo al hablar', 'olvidar el nombre de alguien',
-      'tener mal aliento', 'piso mojado y te caes', 'hacer un TikTok', 'subir una foto vergonzosa', 'que te etiqueten en una mala foto',
-      'mandar mensaje al chat equivocado', 'roncar', 'llegar tarde', 'quedarte dormido hablando', 'que te vean cantando solo'
+      { text: 'Caerse', similar: 'Tropezar', clues: { easy: 'Suelo', hard: 'Público' } },
+      { text: 'Saludar mal', similar: 'Ignorado', clues: { easy: 'Mano', hard: 'Visto' } },
+      { text: 'Pedo ruidoso', similar: 'Eructo', clues: { easy: 'Sonido', hard: 'Silencio' } },
+      { text: 'Diente sucio', similar: 'Mal aliento', clues: { easy: 'Comida', hard: 'Sonreír' } },
+      { text: 'Bragueta abierta', similar: 'Ropa rota', clues: { easy: 'Pantalón', hard: 'Cierre' } },
+      { text: 'Decir Mamá', similar: 'Equivocar nombre', clues: { easy: 'Maestra', hard: 'Error' } },
+      { text: 'Roncar', similar: 'Babear', clues: { easy: 'Dormir', hard: 'Ruido' } },
+      { text: 'Mandar mal chat', similar: 'Sticker mal', clues: { easy: 'WhatsApp', hard: 'Error' } },
+      { text: 'Saludar a otro', similar: 'Despedirse', clues: { easy: 'Confusión', hard: 'Ciego' } },
+      { text: 'Chiste malo', similar: 'Silencio', clues: { easy: 'Reír', hard: 'Grillo' } },
+      { text: 'Tarjeta rechazada', similar: 'Sin dinero', clues: { easy: 'Pagar', hard: 'Caja' } },
+      { text: 'Gallo al hablar', similar: 'Tos', clues: { easy: 'Voz', hard: 'Garganta' } },
+      { text: 'Tropezar', similar: 'Caerse', clues: { easy: 'Pie', hard: 'Caminar' } },
+      { text: 'Moco colgando', similar: 'Comida diente', clues: { easy: 'Nariz', hard: 'Espejo' } },
+      { text: 'Olvidar nombre', similar: 'Desconocer', clues: { easy: 'Memoria', hard: 'Saludo' } }
     ]
   },
   {
     id: 'CosasQueLaGenteHaceAEscondidas',
-    name: 'Cosas Que La Gente Hace a Escondidas',
+    name: '🤫 A Escondidas',
     image: escondidasImg,
     words: [
-      'oler su propio olor', 'mirarse el espejo mucho', 'stalkeo en redes', 'espiar conversaciones', 'leer chats ajenos', 'rascarse la nalga',
-      'comer a escondidas', 'mentir', 'agarrar comida extra', 'robar wifi', 'revisar el celular del otro', 'mover cosas y negar', 'revisar WhatsApp Web',
-      'revisar el historial del otro', 'buscar memes raros', 'criticar', 'hablar solo', 'tomarse selfies', 'practicar respuestas sociales', 'verse videos raros en internet'
+      { text: 'Stalkear', similar: 'Husmear', clues: { easy: 'Redes', hard: 'Ex' } },
+      { text: 'Hurgar Nariz', similar: 'Rascar', clues: { easy: 'Dedo', hard: 'Moco' } },
+      { text: 'Olerse', similar: 'Mirarse', clues: { easy: 'Axila', hard: 'Mal olor' } },
+      { text: 'Comer', similar: 'Robar comida', clues: { easy: 'Noche', hard: 'Dieta' } },
+      { text: 'Mentir', similar: 'Exagerar', clues: { easy: 'Verdad', hard: 'Engaño' } },
+      { text: 'Revisar Celular', similar: 'Leer Chat', clues: { easy: 'Pareja', hard: 'Clave' } },
+      { text: 'Cantar', similar: 'Bailar', clues: { easy: 'Ducha', hard: 'Espejo' } },
+      { text: 'Llorar', similar: 'Gritar', clues: { easy: 'Triste', hard: 'Almohada' } },
+      { text: 'Ver perfil Ex', similar: 'Stalkear', clues: { easy: 'Fotos', hard: 'Pasado' } },
+      { text: 'Orinar ducha', similar: 'Orinar piscina', clues: { easy: 'Baño', hard: 'Agua' } },
+      { text: 'Robar Wifi', similar: 'Usar datos', clues: { easy: 'Internet', hard: 'Vecino' } },
+      { text: 'Hablar solo', similar: 'Imaginar', clues: { easy: 'Loco', hard: 'Voz' } },
+      { text: 'Tomarse Selfies', similar: 'Posar', clues: { easy: 'Fotos', hard: 'Espejo' } },
+      { text: 'Rascarse', similar: 'Acomodarse', clues: { easy: 'Picazón', hard: 'Ropa' } },
+      { text: 'Oír conversaciones', similar: 'Espiar', clues: { easy: 'Chisme', hard: 'Oreja' } }
     ]
   }
 ];

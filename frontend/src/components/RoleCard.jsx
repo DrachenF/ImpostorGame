@@ -2,108 +2,119 @@
 import { useState } from 'react';
 import './RoleCard.css';
 
-function RoleCard({ playerData, role, startingPlayer, direction, isHost, onInitiateVoting }) {
+function RoleCard({ 
+  playerData, 
+  role, 
+  startingPlayerName, 
+  direction, 
+  isHost, 
+  onInitiateVoting,
+  impostorMode 
+}) {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const isImpostor = role.isImpostor;
-  const word = role.word;
+  // Leemos directo de playerData para evitar errores
+  const isImpostorReal = playerData.isImpostor; 
+  const isImpostorVisual = impostorMode ? false : isImpostorReal;
+  
+  const word = playerData.word || "Error"; 
+  const clue = playerData.clue;
 
   const handleCardClick = () => {
     setIsFlipped(!isFlipped);
   };
 
+  const handleVoteClick = (e) => {
+    e.stopPropagation();
+    if (onInitiateVoting) onInitiateVoting();
+  };
+
   return (
     <div className="rolecard-overlay">
-      <div className="tap-instruction">
-        <p>Toca la tarjeta para revelar tu rol</p>
-        <div className="tap-icon">👆</div>
-      </div>
-
-      <div 
-        className={`flip-card-container ${isFlipped ? 'flipped' : ''}`}
-        onClick={handleCardClick}
-      >
-        {/* FRENTE - Avatar y nombre */}
-        <div className="flip-card-front">
-          <div className="player-card-content">
-            <img 
-              src={playerData.avatar.image} 
-              alt={playerData.avatar.name}
-              className="player-card-avatar"
-            />
-            <h3 className="player-card-name">{playerData.name}</h3>
-            <p className="player-card-subtitle">{playerData.avatar.name}</p>
-          </div>
-          
-          <div className="tap-indicator">
-            <div className="tap-bar"></div>
-          </div>
-        </div>
-
-        {/* REVERSO - Información del rol */}
-        <div className={`flip-card-back ${isImpostor ? 'impostor' : 'civil'}`}>
-          <div className="rolecard-header">
-            <h2>{isImpostor ? '🎭 ERES EL IMPOSTOR' : '👤 ERES CIVIL'}</h2>
-          </div>
-
-          <div className="rolecard-body">
-            {isImpostor ? (
-              <>
-                <p className="role-description">
-                  Tu misión es descubrir la palabra secreta sin que te identifiquen.
-                </p>
-                <div className="word-box impostor-box">
-                  <span className="word-label">Tu palabra:</span>
-                  <span className="word-text">???</span>
-                  <p className="word-hint">No conoces la palabra secreta</p>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="role-description">
-                  Tu misión es identificar al impostor. Todos ustedes conocen la palabra.
-                </p>
-                <div className="word-box civil-box">
-                  <span className="word-label">Palabra secreta:</span>
-                  <span className="word-text">{word}</span>
-                </div>
-              </>
-            )}
-
-            <div className="game-info">
-              <div className="info-item">
-                <span className="info-icon">🎯</span>
-                <span className="info-text">
-                  Inicia: <strong>{startingPlayer.name}</strong>
-                </span>
-              </div>
-              <div className="info-item">
-                <span className="info-icon">↻</span>
-                <span className="info-text">
-                  Dirección: <strong>{direction === 'left' ? '← Izquierda' : '→ Derecha'}</strong>
-                </span>
-              </div>
-            </div>
-
-            <div className="tap-back-hint">
-              Toca para volver
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Botón de iniciar votación solo para el HOST */}
-      {isHost && onInitiateVoting && (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onInitiateVoting();
-          }}
-          className="btn-vote-floating"
+      <div className="role-card-wrapper">
+        
+        <div 
+          className={`flip-card-container ${isFlipped ? 'flipped' : ''}`}
+          onClick={handleCardClick}
         >
-          🗳️ Iniciar Votación
-        </button>
-      )}
+          <div className="flip-card-inner">
+            
+            <div className="flip-card-front">
+              <div className="card-face-content">
+                <div className="tap-icon">👆</div>
+                <h2>TOCA PARA REVELAR</h2>
+                <div className="player-badge">
+                  <img src={playerData.avatar.image} alt="avatar" />
+                  <span>{playerData.name}</span>
+                </div>
+                {impostorMode && (
+                  <div className="confusion-badge-front">⚠️ MODO CONFUSIÓN ACTIVO</div>
+                )}
+              </div>
+            </div>
+
+            <div className={`flip-card-back ${isImpostorVisual ? 'impostor-theme' : 'civil-theme'}`}>
+              <div className="card-face-content content-scrollable">
+                
+                <div className="role-header">
+                  <span className="role-icon">{isImpostorVisual ? '🤫' : '👤'}</span>
+                  <h3>{isImpostorVisual ? 'ERES EL IMPOSTOR' : 'ERES CIVIL'}</h3>
+                </div>
+
+                {impostorMode && (
+                  <div className="confusion-warning-banner">
+                    ⚠️ ALERTA: MODO CONFUSIÓN ⚠️
+                    <small>Tu rol visual y palabra pueden ser una trampa.</small>
+                  </div>
+                )}
+
+                <div className="word-section">
+                  <p className="label-small">TU PALABRA SECRETA:</p>
+                  <h1 className="main-word">{word}</h1>
+                </div>
+
+                {clue && (
+                  <div className="clue-container">
+                    <div className="clue-icon">💡</div>
+                    <div className="clue-info">
+                      <span className="clue-label">PISTA VISUAL</span>
+                      <span className="clue-value">{clue}</span>
+                    </div>
+                  </div>
+                )}
+
+                <p className="instruction-text">
+                  {isImpostorReal
+                    ? '¡Engaña a todos! Nadie sabe que eres tú.'
+                    : 'Encuentra al mentiroso. ¡Haz buenas preguntas!'}
+                </p>
+
+                <div className="turn-info-box">
+                  <div className="turn-row">
+                    <span>🎯 Inicia:</span>
+                    <strong>{startingPlayerName || 'Aleatorio'}</strong>
+                  </div>
+                  <div className="turn-row">
+                    <span>↻ Sentido:</span>
+                    <strong>{direction === 'left' ? '← Izquierda' : '→ Derecha'}</strong>
+                  </div>
+                </div>
+
+                <p className="tap-hint">(Toca para ocultar)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {isHost && (
+          <button 
+            onClick={handleVoteClick} 
+            className={`btn-start-voting-fixed ${isFlipped ? 'btn-on-red' : 'btn-on-white'}`}
+          >
+            🗳️ Iniciar Votación
+          </button>
+        )}
+      </div>
     </div>
   );
 }

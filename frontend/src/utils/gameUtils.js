@@ -1,143 +1,151 @@
-// Frontend/src/utils/gameUtils.js
-import { doc, updateDoc } from 'firebase/firestore';
+// src/utils/gameUtils.js
 import { db } from '../config/firebase';
+import { doc, updateDoc, getDoc } from 'firebase/firestore'; 
 import { categories } from './categories';
 
-/**
- * Generar código de sala aleatorio (6 caracteres)
- */
-export function generateRoomCode() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+// --- Generadores ---
+export const generateRoomCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
-}
+};
 
-/**
- * Generar ID único para jugador
- */
-export function generatePlayerId() {
-  return `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
+export const generatePlayerId = () => {
+  return 'player-' + Math.random().toString(36).substr(2, 9);
+};
 
-/**
- * Inicia el juego asignando roles y configurando el estado inicial
- */
-export async function startGame(roomId, roomData) {
+// --- Lógica de Palabras (CORREGIDA) ---
+export const getRandomWord = (categoryId) => {
+  const category = categories.find(c => c.id === categoryId);
+  if (!category || !category.words || category.words.length === 0) return null;
+
+  const selectedObj = category.words[Math.floor(Math.random() * category.words.length)];
+  const clueType = Math.random() < 0.5 ? 'easy' : 'hard'; 
+
+  // Buscamos la propiedad correcta (word, text o name)
+  const realWord = selectedObj.word || selectedObj.text || selectedObj.name || "Error";
+
+  return {
+    word: realWord,
+    similar: selectedObj.similar || "Palabra Similar",
+    clue: selectedObj.clues ? selectedObj.clues[clueType] : "Sin pista"
+  };
+};
+
+// --- INICIAR JUEGO (Blindado) ---
+export const startGame = async (roomCode, oldRoomData) => {
   try {
-    const players = roomData.players;
-    const impostorCount = roomData.impostorCount || 1;
-    const selectedCategories = roomData.selectedCategories || categories.map(cat => cat.id);
+    // 1. Obtener datos frescos de la BD
+    const roomRef = doc(db, 'rooms', roomCode);
+    const roomSnap = await getDoc(roomRef);
     
-    // Mezclar jugadores aleatoriamente
-    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+    if (!roomSnap.exists()) throw new Error("La sala no existe");
+    const freshRoomData = roomSnap.data();
+
+    const availableCategories = freshRoomData.selectedCategories;
+    if (!availableCategories || availableCategories.length === 0) throw new Error("Sin categorías");
+
+    // 2. Configuración
+    const isConfusionMode = freshRoomData.impostorMode === true;
+    const isCluesMode = freshRoomData.showClues === true;
+
+    // 3. Palabra
+    const randomCatId = availableCategories[Math.floor(Math.random() * availableCategories.length)];
+    const wordData = getRandomWord(randomCatId);
+    if (!wordData) throw new Error("Error obteniendo palabra");
+
+    const activeClue = isCluesMode && !isConfusionMode ? wordData.clue : null;
+
+    // 4. Preparar Jugadores (COPIA PROFUNDA)
+    const players = freshRoomData.players.map(p => ({ ...p }));
     
-    // Seleccionar impostores aleatoriamente
-    const impostorIndices = [];
-    while (impostorIndices.length < impostorCount) {
-      const randomIndex = Math.floor(Math.random() * shuffledPlayers.length);
-      if (!impostorIndices.includes(randomIndex)) {
-        impostorIndices.push(randomIndex);
+    // Calcular impostores
+    let impostorCount = freshRoomData.impostorCount || 1;
+    if (impostorCount >= players.length) impostorCount = Math.max(1, Math.floor(players.length / 3));
+
+    // Resetear a todos
+    players.forEach(p => {
+      p.isImpostor = false;
+      p.word = wordData.word; 
+      p.clue = null;
+      p.isAlive = true; 
+    });
+
+    // 5. Asignar Impostores
+    let assignedImpostors = 0;
+    const playerIndices = players.map((_, index) => index); 
+    
+    while (assignedImpostors < impostorCount && playerIndices.length > 0) {
+      const randomIndex = Math.floor(Math.random() * playerIndices.length);
+      const originalIndex = playerIndices.splice(randomIndex, 1)[0];
+      
+      players[originalIndex].isImpostor = true;
+      
+      if (isConfusionMode) {
+        players[originalIndex].word = wordData.similar;
+        players[originalIndex].clue = null; 
+      } else {
+        players[originalIndex].word = "ERES EL IMPOSTOR";
+        players[originalIndex].clue = activeClue; 
       }
+      assignedImpostors++;
+    }
+
+    // 6. Generar Quién Inicia (CORREGIDO PARA EVITAR "ALEATORIO")
+    let startName = "Jugador 1";
+    if (players.length > 0) {
+        const randomStartPlayer = players[Math.floor(Math.random() * players.length)];
+        startName = randomStartPlayer.name; // Usamos el nombre real
     }
     
-    // Obtener palabra aleatoria de las categorías seleccionadas
-    const availableWords = [];
-    selectedCategories.forEach(catId => {
-      const category = categories.find(cat => cat.id === catId);
-      if (category) {
-        availableWords.push(...category.words);
-      }
-    });
-    
-    const secretWord = availableWords[Math.floor(Math.random() * availableWords.length)];
-    
-    // Asignar roles a cada jugador
-    const playerRoles = {};
-    shuffledPlayers.forEach((player, index) => {
-      playerRoles[player.id] = {
-        isImpostor: impostorIndices.includes(index),
-        word: impostorIndices.includes(index) ? null : secretWord
-      };
-    });
-    
-    // Determinar jugador inicial y dirección
-    const startingPlayerIndex = Math.floor(Math.random() * shuffledPlayers.length);
-    const startingPlayer = shuffledPlayers[startingPlayerIndex];
     const direction = Math.random() < 0.5 ? 'left' : 'right';
-    
-    // Crear orden de jugadores según la dirección
-    const playerOrder = [...shuffledPlayers];
-    if (direction === 'right') {
-      playerOrder.reverse();
-    }
-    
-    // Actualizar el estado del juego en Firebase
-    const roomRef = doc(db, 'rooms', roomId);
-    await updateDoc(roomRef, {
-      'gameState.status': 'starting',
-      'gameState.playerRoles': playerRoles,
-      'gameState.secretWord': secretWord,
-      'gameState.startingPlayer': {
-        id: startingPlayer.id,
-        name: startingPlayer.name
-      },
-      'gameState.direction': direction,
-      'gameState.playerOrder': playerOrder.map(p => ({
-        id: p.id,
-        name: p.name
-      })),
-      'gameState.startedAt': new Date().toISOString()
-    });
-    
-    console.log('✅ Game started successfully!');
-    return true;
-  } catch (error) {
-    console.error('❌ Error starting game:', error);
-    throw error;
-  }
-}
 
-/**
- * Inicia la fase de votación
- */
-export async function initiateVoting(roomId) {
-  try {
-    const roomRef = doc(db, 'rooms', roomId);
+    // 7. Guardar en Firebase
     await updateDoc(roomRef, {
+      status: 'playing',
+      currentCategory: randomCatId,
+      players: players, 
+      startTime: new Date().toISOString(),
+      gameState: {
+        status: 'playing',
+        startingPlayerName: startName, 
+        direction: direction,
+        votingPhase: { active: false, showResults: false, votes: {} }
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error start:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const initiateVoting = async (roomCode) => {
+  try {
+    const roomRef = doc(db, 'rooms', roomCode);
+    await updateDoc(roomRef, {
+      status: 'voting',
       'gameState.votingPhase': {
         active: true,
-        countdownStarted: false,
         votes: {},
-        showResults: false
+        showResults: false,
+        forceGameOver: null 
       }
     });
-    
-    console.log('✅ Voting initiated successfully!');
-    return true;
-  } catch (error) {
-    console.error('❌ Error initiating voting:', error);
-    throw error;
-  }
-}
+    return { success: true };
+  } catch (error) { return { success: false, error: error.message }; }
+};
 
-/**
- * Reinicia el juego
- */
-export async function resetGame(roomId) {
+export const resetGame = async (roomCode) => {
   try {
-    const roomRef = doc(db, 'rooms', roomId);
-    await updateDoc(roomRef, {
-      gameState: {
-        status: 'waiting'
-      }
+    await updateDoc(doc(db, 'rooms', roomCode), {
+      status: 'waiting',
+      gameState: { status: 'waiting' }
     });
-    console.log('✅ Game reset successfully!');
-    return true;
-  } catch (error) {
-    console.error('❌ Error resetting game:', error);
-    throw error;
-  }
-}
+    return { success: true };
+  } catch (error) { return { success: false, error: error.message }; }
+};

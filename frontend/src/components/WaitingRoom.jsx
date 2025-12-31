@@ -18,196 +18,142 @@ function WaitingRoom() {
   const [timeRemaining, setTimeRemaining] = useState('');
   const playerId = localStorage.getItem('playerId');
 
-  // --- CORRECCIÓN CRÍTICA AQUÍ ---
+  // Salida segura
   useEffect(() => {
-    // Solo expulsamos al jugador si cierra la pestaña explícitamente
-    const handleBeforeUnload = (e) => {
-      leaveRoom(roomCode, playerId);
-    };
-
+    const handleBeforeUnload = () => leaveRoom(roomCode, playerId);
     window.addEventListener('beforeunload', handleBeforeUnload);
-
-    // QUITAMOS la limpieza automática al desmontar (return)
-    // para evitar que React StrictMode te saque de la sala al cargar.
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [roomCode, playerId]);
-  // -------------------------------
 
+  // Suscripción a la sala
   useEffect(() => {
-    console.log('🔍 Cargando sala:', roomCode);
-
     const unsubscribe = subscribeToRoom(roomCode, (data) => {
       if (data) {
         setRoomData(data);
         setLoading(false);
-        
-        if (data.gameState?.status === 'waiting') {
+
+        if (data.status === 'waiting') {
           setIsStarting(false);
         }
       } else {
-        console.log('❌ Sala no encontrada en suscripción');
-        // No ponemos setLoading(false) inmediatamente para dar tiempo a reconectar
-        // si hubo un parpadeo de conexión.
-        setTimeout(() => {
-             if (!data) setLoading(false);
-        }, 1000);
+        setTimeout(() => { if (!data) setLoading(false); }, 1000);
       }
     });
-
     return () => unsubscribe();
   }, [roomCode, navigate]);
 
+  // Temporizador de expiración
   useEffect(() => {
     if (!roomData?.expiresAt) return;
-
-    const updateTimeRemaining = () => {
-      const now = new Date();
-      const expiresAt = new Date(roomData.expiresAt);
-      const diff = expiresAt - now;
-
-      if (diff <= 0) {
-        setTimeRemaining('Expirada');
-        return;
-      }
-
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      setTimeRemaining(`${hours}h ${minutes}m`);
+    const updateTime = () => {
+      const diff = new Date(roomData.expiresAt) - new Date();
+      if (diff <= 0) return setTimeRemaining('Expirada');
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      setTimeRemaining(`${h}h ${m}m`);
     };
-
-    updateTimeRemaining();
-    const interval = setInterval(updateTimeRemaining, 60000);
-    return () => clearInterval(interval);
+    updateTime();
+    const i = setInterval(updateTime, 60000);
+    return () => clearInterval(i);
   }, [roomData]);
 
-  const copyRoomCode = () => {
+  const copyCode = () => {
     navigator.clipboard.writeText(roomCode);
-    toastSuccess('Código copiado', { duration: 2000 });
+    toastSuccess('Copiado');
   };
 
-  const handleSaveSettings = async (settings) => {
-    const result = await updateRoomSettings(roomCode, settings);
-    if (!result.success) toastError('Error guardando configuración');
-    else toastSuccess('Configuración guardada');
-  };
-
-  const handleRemovePlayer = async (playerIdToRemove) => {
-    if (window.confirm('¿Expulsar jugador?')) {
-      const result = await removePlayer(roomCode, playerIdToRemove);
-      if (result.success) toastSuccess('Jugador expulsado');
-      else toastError('Error al expulsar');
-    }
-  };
-
-  const handleStartGame = async () => {
-    const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
-    if (!isHost || isStarting) return;
-    
-    if (roomData.players.length < 3) {
-      toastWarning('Se necesitan mínimo 3 jugadores');
-      return;
-    }
-
+  const handleStart = async () => {
+    if (roomData.players.length < 3) return toastWarning('Mínimo 3 jugadores');
     setIsStarting(true);
-    try {
-      await startGame(roomCode, roomData);
-      toastSuccess('¡Iniciando!');
-    } catch (error) {
-      console.error('Error inicio:', error);
-      toastError('No se pudo iniciar');
-      setIsStarting(false);
-    }
+    try { await startGame(roomCode, roomData); }
+    catch (e) { setIsStarting(false); toastError('Error iniciando'); }
   };
 
-  if (loading) {
-    return (
-      <div className="waiting-room-container">
-        <div className="loading"><h2>⏳ Conectando...</h2></div>
-      </div>
-    );
-  }
+  if (loading) return <div className="waiting-room-container"><div className="loading">⏳ Cargando...</div></div>;
+  if (!roomData) return <div className="waiting-room-container"><div className="error">⚠️ Sala no encontrada <button onClick={() => navigate('/')}>Salir</button></div></div>;
 
-  if (!roomData) {
-    return (
-      <div className="waiting-room-container">
-        <div className="error">
-          <h2>⚠️ Sala no encontrada</h2>
-          <p>La sala no existe o ha expirado.</p>
-          <button onClick={() => navigate('/')} className="btn btn-primary">Volver</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (roomData.gameState?.status === 'starting') {
+  // Incluye voting (como ya lo tenías corregido)
+  if (roomData.status === 'playing' || roomData.status === 'voting' || roomData.gameState?.status === 'starting') {
     return <GamePlay roomId={roomCode} playerId={playerId} />;
   }
 
   const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
-  const minPlayers = 3;
-  const canStart = roomData.players.length >= minPlayers;
 
   return (
     <div className="waiting-room-container">
       <div className="waiting-room-card">
         <h1 className="room-title">🎭 Sala de Espera</h1>
-        
-        {timeRemaining && (
-          <div className="time-remaining-badge">Activa: {timeRemaining}</div>
-        )}
-        
+        <div className="time-remaining-badge">{timeRemaining}</div>
+
         <div className="room-code-section">
-          <p>Código de sala:</p>
+          <p>CÓDIGO:</p>
           <div className="code-display">
             <span className="code">{roomCode}</span>
-            <button onClick={copyRoomCode} className="btn-copy">Copiar</button>
+            <button onClick={copyCode} className="btn-copy">COPIAR</button>
           </div>
         </div>
 
         <div className="players-section">
           <h3>Jugadores ({roomData.players.length})</h3>
           <div className="players-list">
-            {roomData.players.map((player) => (
-              <div key={player.id} className="player-item">
-                <div className="player-info">
-                  <img src={player.avatar.image} alt="avatar" className="player-avatar-img"/>
-                  <span className="player-name">
-                    {player.isHost && '👑 '} {player.name}
-                  </span>
-                </div>
-                <div className="player-actions">
-                  {player.id === playerId && <span className="badge-you">Tú</span>}
-                  {isHost && player.id !== playerId && (
-                    <button onClick={() => handleRemovePlayer(player.id)} className="btn-kick">✕</button>
+            {roomData.players.map(p => {
+              const isMe = p.id === playerId;
+
+              return (
+                <div
+                  key={p.id}
+                  className={`player-item ${isMe ? 'current-player-card' : ''}`}  // ✅ ÚNICO CAMBIO
+                >
+                  <img src={p.avatar.image} alt="av" className="player-avatar-img"/>
+                  <span className="player-name">{p.isHost && '👑'} {p.name} {isMe && '(Tú)'}</span>
+                  {isHost && p.id !== playerId && (
+                    <button onClick={() => removePlayer(roomCode, p.id)} className="btn-kick">✕</button>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="game-info-section" style={{display:'flex', flexDirection:'column', gap:'10px'}}>
+          <div style={{display:'flex', gap:'10px'}}>
+            <div className="info-card" style={{flex:1}}>
+              <span className="info-icon">🎭</span>
+              <div><strong>{roomData.impostorCount}</strong> Impostores</div>
+            </div>
+            <div className="info-card" style={{flex:1}}>
+              <span className="info-icon">📚</span>
+              <div><strong>{roomData.selectedCategories?.length}</strong> Categorías</div>
+            </div>
+          </div>
+          <div style={{display:'flex', gap:'10px'}}>
+            <div className={`info-card ${roomData.showClues ? 'active-green' : ''}`} style={{flex:1}}>
+              <span className="info-icon">💡</span>
+              <div>Pistas: <strong>{roomData.showClues ? 'SÍ' : 'NO'}</strong></div>
+            </div>
+            <div className={`info-card ${roomData.impostorMode ? 'active-purple' : ''}`} style={{flex:1}}>
+              <span className="info-icon">😵</span>
+              <div>Confusión: <strong>{roomData.impostorMode ? 'SÍ' : 'NO'}</strong></div>
+            </div>
           </div>
         </div>
 
         {isHost ? (
           <div className="host-controls">
-            <button onClick={() => setShowSettings(true)} className="btn btn-settings">⚙️ Configurar</button>
-            <button 
-              onClick={handleStartGame}
-              className="btn btn-start"
-              disabled={!canStart || isStarting}
-            >
-              {isStarting ? 'Iniciando...' : canStart ? '🚀 Iniciar' : `Esperando (${roomData.players.length}/${minPlayers})`}
+            <button onClick={() => setShowSettings(true)} className="btn btn-settings">⚙️ CONFIGURAR</button>
+            <button onClick={handleStart} className="btn btn-start" disabled={roomData.players.length < 3 || isStarting}>
+              {isStarting ? 'INICIANDO...' : '🚀 INICIAR PARTIDA'}
             </button>
           </div>
         ) : (
-          <div className="waiting-message"><p>⏳ Esperando al host...</p></div>
+          <div className="waiting-message">⏳ Esperando al anfitrión...</div>
         )}
       </div>
 
-      {showSettings && isHost && (
-        <GameSettings 
+      {showSettings && (
+        <GameSettings
           roomData={roomData}
-          onSave={handleSaveSettings}
+          onSave={(s) => updateRoomSettings(roomCode, s)}
           onClose={() => setShowSettings(false)}
         />
       )}

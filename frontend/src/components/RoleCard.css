@@ -1,614 +1,354 @@
 /* Frontend/src/components/RoleCard.css */
-/* RoleCard.css - Versión con Flip y Responsive Mejorado */
 
+/* Overlay de fondo oscuro */
 .rolecard-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background: #DC2626;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.93);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-  overflow: hidden;
+  justify-content: center;
+  z-index: 2000;
   padding: 20px;
-  box-sizing: border-box;
+  perspective: 1500px; /* Perspectiva en el padre para mejor efecto */
 }
 
-.tap-instruction {
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  color: white;
-  z-index: 5;
-  width: 90%;
-  max-width: 450px;
-}
-
-.tap-instruction p {
-  margin: 0 0 12px 0;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.tap-icon {
-  font-size: 48px;
-  animation: tap 1.5s infinite;
-  display: block;
-  margin-top: 8px;
-}
-
-@keyframes tap {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
-
-/* Contenedor de la tarjeta con flip */
-.flip-card-container {
+/* NUEVO: Wrapper para contener la carta y el botón fijo */
+.role-card-wrapper {
   position: relative;
   width: 100%;
-  max-width: 500px;
-  height: 600px;
-  cursor: pointer;
-  perspective: 1000px;
-  z-index: 10;
+  max-width: 360px;
+  height: 620px; /* Altura total */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Efecto 3D flip */
-.flip-card-container.flipped .flip-card-front {
+/* El contenedor que gira 3D */
+.flip-card-container {
+  width: 100%;
+  /* Restamos espacio para que el botón no tape la carta abajo */
+  height: calc(100% - 70px); 
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.flip-card-container.flipped {
   transform: rotateY(180deg);
 }
 
-.flip-card-container.flipped .flip-card-back {
-  transform: rotateY(0deg);
+/* Inner container for faces */
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transform-style: preserve-3d;
 }
 
-/* Frente de la tarjeta */
+/* Common Face Styles */
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* --- TAPA ROJA (FRONT) --- */
 .flip-card-front {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: white;
-  border: 3px solid #000;
-  border-radius: 20px;
-  padding: 40px 30px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  backface-visibility: hidden;
+  background: linear-gradient(145deg, #DC2626, #B91C1C);
+  color: white;
+  border: 4px solid white;
   transform: rotateY(0deg);
-  transition: transform 0.6s;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  z-index: 2;
 }
 
-.player-card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.player-card-avatar {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 5px solid #DC2626;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.player-card-name {
-  font-size: 32px;
-  font-weight: 900;
-  color: #DC2626;
-  margin: 0;
-  letter-spacing: 0.5px;
-}
-
-.player-card-subtitle {
-  font-size: 20px;
-  color: #666;
-  margin: 0;
-  font-weight: 600;
-}
-
-.tap-indicator {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
-}
-
-.tap-bar {
-  width: 80px;
-  height: 6px;
-  background: #DC2626;
-  border-radius: 3px;
-}
-
-/* Reverso de la tarjeta */
-.flip-card-back {
-  position: absolute;
-  width: 100%;
+.flip-card-front .card-face-content {
   height: 100%;
-  background: white;
-  border: 3px solid #000;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
-  backface-visibility: hidden;
-  transform: rotateY(-180deg);
-  transition: transform 0.6s;
-  overflow-y: auto;
-}
-
-.flip-card-back.impostor {
-  border-color: #DC2626;
-}
-
-.flip-card-back.civil {
-  border-color: #000;
-}
-
-.rolecard-header {
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.rolecard-header h2 {
-  font-size: 26px;
-  font-weight: 900;
-  margin: 0;
-  color: #000;
-  letter-spacing: 0.5px;
-}
-
-.rolecard-body {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
 }
 
-.role-description {
-  font-size: 17px;
-  color: #555;
-  text-align: center;
-  line-height: 1.6;
-  margin: 0;
-  font-weight: 600;
+.tap-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+  animation: floatFinger 2s ease-in-out infinite;
 }
 
-.word-box {
-  background: #F9FAFB;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  border: 3px solid;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+@keyframes floatFinger {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-.word-box.impostor-box {
-  border-color: #DC2626;
-  background: #FEE2E2;
+.flip-card-front h2 {
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin: 0 0 30px 0;
+  font-size: 1.6rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.word-box.civil-box {
-  border-color: #000;
-  background: #F3F4F6;
+.player-badge {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 10px 25px 10px 15px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(5px);
 }
 
-.word-label {
-  display: block;
-  font-size: 15px;
-  color: #666;
-  margin-bottom: 12px;
-  font-weight: 700;
+.player-badge img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.player-badge span {
+  font-weight: 800;
+  font-size: 1.2rem;
   letter-spacing: 0.5px;
+}
+
+.confusion-badge-front {
+  margin-top: 25px;
+  background: #F59E0B;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 2px solid white;
+  animation: pulse 2s infinite;
+}
+
+/* --- CONTENIDO BLANCO (BACK) --- */
+.flip-card-back {
+  background: white;
+  transform: rotateY(180deg);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Themes */
+.civil-theme { border: 6px solid #1F2937; }
+.civil-theme .role-icon,
+.civil-theme h3,
+.civil-theme .main-word,
+.civil-theme .clue-value { color: #1F2937; }
+
+.impostor-theme { border: 6px solid #DC2626; }
+.impostor-theme .role-icon,
+.impostor-theme h3,
+.impostor-theme .main-word,
+.impostor-theme .clue-value { color: #DC2626; }
+
+
+.card-face-content.content-scrollable {
+  padding: 25px;
+  height: 100%;
+  overflow-y: auto; /* Permite scroll si el contenido es muy largo */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+/* Role Header */
+.role-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #F3F4F6;
+  width: 100%;
+  justify-content: center;
+}
+
+.role-icon { font-size: 28px; }
+.role-header h3 {
+  font-weight: 900;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Confusion Warning */
+.confusion-warning-banner {
+  background: #F59E0B;
+  color: white;
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 0 #B45309;
+  border: 2px solid #fff;
+  animation: pulse 2s infinite;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confusion-warning-banner small {
+  font-weight: 600;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.98); opacity: 0.9; }
+  100% { transform: scale(1); }
+}
+
+/* Word Section */
+.word-section {
+  margin: 10px 0 20px 0;
+  text-align: center;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.label-small {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #9CA3AF;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
   text-transform: uppercase;
 }
 
-.word-text {
-  display: block;
-  font-size: 36px;
+.main-word {
+  font-size: 2.8rem;
   font-weight: 900;
-  margin: 10px 0;
-  letter-spacing: 1px;
+  line-height: 1.1;
+  word-break: break-word;
+  margin: 0;
 }
 
-.word-box.impostor-box .word-text {
-  color: #DC2626;
-}
-
-.word-box.civil-box .word-text {
-  color: #000;
-}
-
-.word-hint {
-  font-size: 14px;
-  color: #999;
-  margin: 10px 0 0 0;
-  font-style: italic;
-  font-weight: 500;
-}
-
-.game-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.info-item {
+/* Clue Container */
+.clue-container {
+  background: #FFFBEB;
+  border-left: 5px solid #FBBF24;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: white;
-  padding: 14px 18px;
-  border-radius: 10px;
-  border: 2px solid #E5E7EB;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  gap: 15px;
+  width: 100%;
+  margin-bottom: 20px;
+  text-align: left;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.info-icon {
-  font-size: 24px;
-  flex-shrink: 0;
-}
+.clue-icon { font-size: 24px; }
+.clue-info { display: flex; flex-direction: column; }
+.clue-label { font-size: 0.65rem; font-weight: 900; color: #B45309; text-transform: uppercase; letter-spacing: 0.5px; }
+.clue-value { font-size: 1.2rem; font-weight: 800; }
 
-.info-text {
-  font-size: 16px;
-  color: #555;
-  line-height: 1.5;
-  font-weight: 600;
-}
-
-.info-text strong {
-  color: #000;
-  font-weight: 900;
-}
-
-.tap-back-hint {
+/* Instruction & Turn Info */
+.instruction-text {
+  font-size: 0.95rem;
+  color: #6B7280;
+  margin-bottom: 20px;
+  font-weight: 500;
   text-align: center;
-  color: #999;
-  font-size: 14px;
-  font-weight: 600;
+  font-style: italic;
+}
+
+.turn-info-box {
+  background: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 15px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.turn-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #475569;
+  padding: 6px 0;
+}
+.turn-row:first-child { border-bottom: 1px solid #E2E8F0; margin-bottom: 6px; padding-bottom: 12px; }
+.turn-row strong { color: #1F2937; font-weight: 800; font-size: 1.05rem; }
+
+.tap-hint {
+  font-size: 0.8rem;
+  color: #9CA3AF;
   margin-top: 15px;
   font-style: italic;
 }
 
-/* BOTÓN DE VOTACIÓN MEJORADO */
-.btn-vote-floating {
-  position: fixed !important;
-  bottom: 40px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  background: #FFFFFF !important;
-  color: #DC2626 !important;
-  border: 3px solid #DC2626 !important;
-  padding: 18px 38px !important;
-  border-radius: 12px !important;
-  font-size: 19px !important;
-  font-weight: 900 !important;
-  cursor: pointer !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
-  z-index: 1000 !important;
-  transition: all 0.2s ease !important;
-  letter-spacing: 0.5px !important;
+/* --- ESTILOS DEL BOTÓN FIJO (NUEVO) --- */
+.btn-start-voting-fixed {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  cursor: pointer;
+  /* Sombra suave para que destaque sobre el fondo negro */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  border: none;
+  z-index: 10; /* Asegura que esté por encima de la carta */
 }
 
-.btn-vote-floating:hover {
-  background: #DC2626 !important;
-  color: #FFFFFF !important;
-  box-shadow: 0 10px 35px rgba(220, 38, 38, 0.5) !important;
-  transform: translateX(-50%) scale(1.05) !important;
+/* Estado 1: Sobre fondo BLANCO (la carta no está girada) */
+.btn-on-white {
+  background: #DC2626; /* Botón Rojo */
+  color: white;
+  border: 3px solid transparent;
+}
+.btn-on-white:hover { background: #B91C1C; }
+
+/* Estado 2: Sobre fondo ROJO (la carta está girada) */
+.btn-on-red {
+  background: white; /* Botón Blanco */
+  color: #DC2626;
+  border: 3px solid white; /* Borde blanco para definición */
+}
+.btn-on-red:hover {
+  background: #f8fafc; /* Blanco un poco más gris al hover */
+  color: #B91C1C;
 }
 
-.btn-vote-floating:active {
-  transform: translateX(-50%) scale(0.98) !important;
-  box-shadow: 0 5px 20px rgba(220, 38, 38, 0.4) !important;
-}
-
-/* RESPONSIVE - Desktop Grande (1440px+) */
-@media (min-width: 1440px) {
-  .flip-card-container {
-    max-width: 600px;
-    height: 700px;
-  }
-
-  .player-card-avatar {
-    width: 220px;
-    height: 220px;
-  }
-
-  .player-card-name {
-    font-size: 38px;
-  }
-
-  .player-card-subtitle {
-    font-size: 22px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 30px;
-  }
-
-  .role-description {
-    font-size: 19px;
-  }
-
-  .word-text {
-    font-size: 42px;
-  }
-
-  .tap-instruction p {
-    font-size: 20px;
-  }
-
-  .tap-icon {
-    font-size: 56px;
-  }
-}
-
-/* RESPONSIVE - Desktop Estándar (1024px - 1439px) */
-@media (min-width: 1024px) and (max-width: 1439px) {
-  .flip-card-container {
-    max-width: 550px;
-    height: 650px;
-  }
-
-  .player-card-avatar {
-    width: 200px;
-    height: 200px;
-  }
-
-  .player-card-name {
-    font-size: 34px;
-  }
-
-  .player-card-subtitle {
-    font-size: 21px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 28px;
-  }
-
-  .role-description {
-    font-size: 18px;
-  }
-
-  .word-text {
-    font-size: 38px;
-  }
-}
-
-/* RESPONSIVE - Tablets (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .flip-card-container {
-    max-width: 480px;
-    height: 580px;
-  }
-
-  .player-card-avatar {
-    width: 160px;
-    height: 160px;
-  }
-
-  .player-card-name {
-    font-size: 28px;
-  }
-
-  .player-card-subtitle {
-    font-size: 18px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 24px;
-  }
-
-  .role-description {
-    font-size: 16px;
-  }
-
-  .word-text {
-    font-size: 32px;
-  }
-
-  .tap-instruction {
-    top: 60px;
-  }
-
-  .tap-instruction p {
-    font-size: 17px;
-  }
-
-  .tap-icon {
-    font-size: 44px;
-  }
-}
-
-/* RESPONSIVE - Móviles (481px - 767px) */
-@media (max-width: 767px) and (min-width: 481px) {
-  .flip-card-container {
-    max-width: 420px;
-    height: 540px;
-  }
-
-  .flip-card-front,
-  .flip-card-back {
-    padding: 30px 25px;
-  }
-
-  .player-card-avatar {
-    width: 140px;
-    height: 140px;
-  }
-
-  .player-card-name {
-    font-size: 24px;
-  }
-
-  .player-card-subtitle {
-    font-size: 16px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 20px;
-  }
-
-  .role-description {
-    font-size: 15px;
-  }
-
-  .word-text {
-    font-size: 28px;
-  }
-
-  .tap-instruction {
-    top: 50px;
-  }
-
-  .tap-instruction p {
-    font-size: 15px;
-  }
-
-  .tap-icon {
-    font-size: 38px;
-  }
-}
-
-/* RESPONSIVE - Móviles pequeños (320px - 480px) */
-@media (max-width: 480px) {
-  .flip-card-container {
-    max-width: 90%;
-    height: 500px;
-  }
-
-  .flip-card-front,
-  .flip-card-back {
-    padding: 25px 20px;
-    border-radius: 18px;
-  }
-
-  .player-card-avatar {
-    width: 120px;
-    height: 120px;
-    border-width: 4px;
-  }
-
-  .player-card-name {
-    font-size: 22px;
-  }
-
-  .player-card-subtitle {
-    font-size: 15px;
-  }
-
-  .rolecard-header h2 {
-    font-size: 19px;
-  }
-
-  .role-description {
-    font-size: 14px;
-  }
-
-  .word-box {
-    padding: 20px;
-  }
-
-  .word-text {
-    font-size: 26px;
-  }
-
-  .info-item {
-    padding: 12px 14px;
-  }
-
-  .info-text {
-    font-size: 14px;
-  }
-
-  .info-icon {
-    font-size: 20px;
-  }
-
-  .tap-instruction {
-    top: 40px;
-  }
-
-  .tap-instruction p {
-    font-size: 14px;
-  }
-
-  .tap-icon {
-    font-size: 36px;
-  }
-
-  .btn-vote-floating {
-    bottom: 25px !important;
-    padding: 16px 32px !important;
-    font-size: 17px !important;
-  }
-}
-
-/* RESPONSIVE - Móviles muy pequeños (< 320px) */
-@media (max-width: 319px) {
-  .flip-card-container {
-    height: 480px;
-  }
-
-  .player-card-avatar {
-    width: 100px;
-    height: 100px;
-  }
-
-  .player-card-name {
-    font-size: 20px;
-  }
-
-  .word-text {
-    font-size: 24px;
-  }
-}
-
-/* Orientación horizontal en móviles */
-@media (max-height: 600px) and (orientation: landscape) {
-  .flip-card-container {
-    max-width: 450px;
-    height: 90vh;
-  }
-
-  .tap-instruction {
-    top: 20px;
-  }
-
-  .tap-instruction p {
-    font-size: 12px;
-  }
-
-  .tap-icon {
-    font-size: 28px;
-  }
-
-  .player-card-avatar {
-    width: 80px;
-    height: 80px;
-  }
-
-  .flip-card-front,
-  .flip-card-back {
-    padding: 20px;
-  }
-
-  .btn-vote-floating {
-    bottom: 15px !important;
-    padding: 12px 25px !important;
-    font-size: 15px !important;
-  }
+.btn-start-voting-fixed:active {
+  transform: translateX(-50%) translateY(2px);
+  box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.3);
 }

@@ -16,7 +16,7 @@ import { categories } from './categories';
 const normalizeRoomCode = (code) =>
   (code ?? '').toString().trim().toUpperCase().replace(/\s+/g, '');
 
-// Función para eliminar sala manual
+// Función para eliminar sala manualmente
 export const deleteRoom = async (roomCode) => {
   const normalizedCode = normalizeRoomCode(roomCode);
   try {
@@ -29,7 +29,7 @@ export const deleteRoom = async (roomCode) => {
   }
 };
 
-// Crear sala
+// Crear una nueva sala
 export const createRoom = async (hostName, avatar) => {
   const rawCode = generateRoomCode();
   const roomCode = normalizeRoomCode(rawCode);
@@ -56,6 +56,11 @@ export const createRoom = async (hostName, avatar) => {
     currentRound: 0,
     selectedCategories: categories.map(cat => cat.id),
     impostorCount: 1,
+    
+    // 👇 AQUÍ FORZAMOS QUE NAZCAN APAGADOS
+    showClues: false,     
+    impostorMode: false,  
+    
     createdAt: now.toISOString(),
     expiresAt: expiresAt.toISOString()
   };
@@ -70,7 +75,7 @@ export const createRoom = async (hostName, avatar) => {
   }
 };
 
-// Unirse a sala
+// Unirse a una sala existente
 export const joinRoom = async (roomCode, playerName, avatar) => {
   const playerId = generatePlayerId();
   const normalizedCode = normalizeRoomCode(roomCode);
@@ -114,7 +119,7 @@ export const joinRoom = async (roomCode, playerName, avatar) => {
   }
 };
 
-// Suscribirse a cambios
+// Escuchar cambios en tiempo real
 export const subscribeToRoom = (roomCode, callback) => {
   const normalizedCode = normalizeRoomCode(roomCode);
   const roomRef = doc(db, 'rooms', normalizedCode);
@@ -136,12 +141,16 @@ export const subscribeToRoom = (roomCode, callback) => {
   return unsubscribe;
 };
 
+// Actualizar configuración
 export const updateRoomSettings = async (roomCode, settings) => {
   try {
     const normalizedCode = normalizeRoomCode(roomCode);
     await updateDoc(doc(db, 'rooms', normalizedCode), {
       selectedCategories: settings.selectedCategories,
-      impostorCount: settings.impostorCount
+      impostorCount: settings.impostorCount,
+      // 👇 GUARDAMOS LAS OPCIONES NUEVAS
+      showClues: settings.showClues, 
+      impostorMode: settings.impostorMode
     });
     return { success: true };
   } catch (error) {
@@ -149,7 +158,7 @@ export const updateRoomSettings = async (roomCode, settings) => {
   }
 };
 
-// Eliminar jugador (AHORA SÍ BORRA LA SALA SI QUEDA VACÍA)
+// Eliminar jugador
 export const removePlayer = async (roomCode, playerIdToRemove) => {
   try {
     const normalizedCode = normalizeRoomCode(roomCode);
@@ -161,13 +170,10 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
     const roomData = roomSnap.data();
     const remainingPlayers = roomData.players.filter(p => p.id !== playerIdToRemove);
 
-    // --- AQUÍ ESTÁ EL CAMBIO: REACTIVAMOS LA LIMPIEZA ---
     if (remainingPlayers.length === 0) {
-      await deleteDoc(roomRef); // ¡Ahora sí borramos la sala!
-      console.log('🗑️ Sala eliminada al quedar vacía');
+      await deleteDoc(roomRef);
       return { success: true, roomDeleted: true };
     }
-    // ----------------------------------------------------
 
     const playerWasHost = roomData.players.some(p => p.id === playerIdToRemove && p.isHost);
     let newHostId = roomData.host;
