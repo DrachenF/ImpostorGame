@@ -17,6 +17,8 @@ function GamePlay({ roomId, playerId }) {
   const [playerData, setPlayerData] = useState(null);
   const [roomExpired, setRoomExpired] = useState(false);
   const prevPlayersRef = useRef([]);
+  const unsubscribeRef = useRef(null);
+  const [wasKicked, setWasKicked] = useState(false);
 
   // 1. SUSCRIPCIÓN A LA SALA
   useEffect(() => {
@@ -51,21 +53,27 @@ function GamePlay({ roomId, playerId }) {
         setCountdown(3);
       }
 
+      const kickedPlayers = data.kickedPlayers || {};
       const currentPlayer = data.players.find(p => p.id === playerId);
-      if (!currentPlayer) {
+      const isKicked = kickedPlayers[playerId]?.kicked || currentPlayer?.isKicked;
+
+      if (!currentPlayer || isKicked) {
+        if (!wasKicked) {
+          setWasKicked(true);
+          toastInfo('Has sido expulsado', { duration: 2200, title: 'Expulsado', closable: false });
+        }
+        unsubscribe();
         navigate('/');
         return;
       }
 
       setPlayerData(currentPlayer);
-
-      if (currentPlayer.isKicked) {
-        navigate('/');
-      }
     });
 
+    unsubscribeRef.current = unsubscribe;
+
     return () => unsubscribe();
-  }, [roomId, playerId, countdown, navigate]);
+  }, [roomId, playerId, countdown, navigate, wasKicked]);
 
   // ✅ PRESENCIA: heartbeat para saber si el jugador sigue con el juego abierto
   useEffect(() => {

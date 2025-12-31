@@ -1,7 +1,7 @@
 // Frontend/src/components/WaitingRoom.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { subscribeToRoom, updateRoomSettings, removePlayer, leaveRoom } from '../utils/firebaseService';
+import { subscribeToRoom, updateRoomSettings, removePlayer, leaveRoom, kickPlayer } from '../utils/firebaseService';
 import { startGame } from '../utils/gameUtils';
 import { toastSuccess, toastError, toastWarning } from '../utils/toast';
 import GameSettings from './GameSettings';
@@ -16,7 +16,9 @@ function WaitingRoom() {
   const [showSettings, setShowSettings] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('');
+  const [wasKicked, setWasKicked] = useState(false);
   const playerId = localStorage.getItem('playerId');
+  const unsubscribeRef = useRef(null);
 
   // Salida segura
   useEffect(() => {
@@ -39,8 +41,25 @@ function WaitingRoom() {
         setTimeout(() => { if (!data) setLoading(false); }, 1000);
       }
     });
+    unsubscribeRef.current = unsubscribe;
     return () => unsubscribe();
   }, [roomCode, navigate]);
+
+  useEffect(() => {
+    if (!roomData || wasKicked) return;
+
+    const kickedPlayers = roomData.kickedPlayers || {};
+    const me = roomData.players.find(p => p.id === playerId);
+    const isKicked = kickedPlayers[playerId]?.kicked || me?.isKicked;
+    const missingFromRoom = !me && Object.keys(roomData).length > 0;
+
+    if (isKicked || missingFromRoom) {
+      setWasKicked(true);
+      toastWarning('Has sido expulsado', { duration: 2200, title: 'Expulsado', closable: false });
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      navigate('/');
+    }
+  }, [roomData, playerId, navigate, wasKicked, unsubscribeRef]);
 
   // Temporizador de expiración
   useEffect(() => {
@@ -78,6 +97,7 @@ function WaitingRoom() {
   }
 
   const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
+  const visiblePlayers = roomData.players.filter(p => !p.isKicked);
 
   return (
     <div className="waiting-room-container">
@@ -94,9 +114,9 @@ function WaitingRoom() {
         </div>
 
         <div className="players-section">
-          <h3>Jugadores ({roomData.players.length})</h3>
+          <h3>Jugadores ({visiblePlayers.length})</h3>
           <div className="players-list">
-            {roomData.players.map(p => {
+            {visiblePlayers.map(p => {
               const isMe = p.id === playerId;
 
               return (
@@ -107,7 +127,7 @@ function WaitingRoom() {
                   <img src={p.avatar.image} alt="av" className="player-avatar-img"/>
                   <span className="player-name">{p.isHost && '👑'} {p.name} {isMe && '(Tú)'}</span>
                   {isHost && p.id !== playerId && (
-                    <button onClick={() => removePlayer(roomCode, p.id)} className="btn-kick">✕</button>
+                    <button onClick={() => kickPlayer(roomCode, p.id, playerId)} className="btn-kick">✕</button>
                   )}
                 </div>
               );

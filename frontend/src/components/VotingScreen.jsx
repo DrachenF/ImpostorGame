@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { removePlayer } from '../utils/firebaseService';
+import { removePlayer, kickPlayer } from '../utils/firebaseService';
+import { toastWarning } from '../utils/toast';
 import './VotingScreen.css';
 
 function VotingScreen({ roomId, playerId, roomData }) {
   const [selectedVote, setSelectedVote] = useState(null);
   const [hasConfirmed, setHasConfirmed] = useState(false);
+  const [kickedNotified, setKickedNotified] = useState(false);
+  const navigate = useNavigate();
 
   const votingState = roomData.gameState?.votingPhase || {};
   const votes = votingState.votes || {};
@@ -15,13 +19,25 @@ function VotingScreen({ roomId, playerId, roomData }) {
 
   const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
   const myPlayer = roomData.players.find(p => p.id === playerId);
+  const kickedPlayers = roomData.kickedPlayers || {};
+  const isKicked = kickedPlayers[playerId]?.kicked || myPlayer?.isKicked;
 
   const amIAlive =
     myPlayer?.isAlive !== false &&
     !myPlayer?.hasLeft &&
-    !myPlayer?.isKicked;
+    !myPlayer?.isKicked &&
+    !isKicked;
 
   const myVote = votes[playerId];
+
+  useEffect(() => {
+    if (!isKicked && myPlayer) return;
+    if (!kickedNotified) {
+      setKickedNotified(true);
+      toastWarning('Has sido expulsado', { duration: 2200, title: 'Expulsado', closable: false });
+    }
+    navigate('/');
+  }, [isKicked, navigate, myPlayer, kickedNotified]);
 
   useEffect(() => {
     if (myVote) {
@@ -100,23 +116,7 @@ function VotingScreen({ roomId, playerId, roomData }) {
   const handleKickPlayer = async (targetId) => {
     if (!window.confirm("¿Sacar a este jugador de la partida permanentemente?")) return;
     try {
-      const updatedPlayers = roomData.players.map(p => {
-        if (p.id === targetId) return { ...p, isAlive: false, isKicked: true };
-        return p;
-      });
-
-      // limpiar votos hacia/desde el kickeado
-      const newVotes = {};
-      for (const [voterId, targetId2] of Object.entries(votes)) {
-        if (voterId === targetId) continue;
-        if (targetId2 === targetId) continue;
-        newVotes[voterId] = targetId2;
-      }
-
-      await updateDoc(doc(db, 'rooms', roomId), {
-        players: updatedPlayers,
-        'gameState.votingPhase.votes': newVotes
-      });
+      await kickPlayer(roomId, targetId, playerId);
     } catch (error) {
       console.error(error);
     }

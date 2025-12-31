@@ -162,7 +162,8 @@ export const updateRoomSettings = async (roomCode, settings) => {
 };
 
 // Eliminar jugador
-export const removePlayer = async (roomCode, playerIdToRemove) => {
+export const removePlayer = async (roomCode, playerIdToRemove, options = {}) => {
+  const { reason = 'leave', kickedBy = null } = options;
   try {
     const normalizedCode = normalizeRoomCode(roomCode);
     const roomRef = doc(db, 'rooms', normalizedCode);
@@ -220,6 +221,18 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
         host: newHostId
       };
 
+      if (reason === 'kick') {
+        const kickedPlayers = roomData.kickedPlayers || {};
+        updates.kickedPlayers = {
+          ...kickedPlayers,
+          [playerIdToRemove]: {
+            kicked: true,
+            kickedAt: Date.now(),
+            kickedBy
+          }
+        };
+      }
+
       const votingPhase = roomData.gameState?.votingPhase;
       if (votingPhase?.votes) {
         const cleanedVotes = {};
@@ -246,4 +259,8 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
 export const leaveRoom = async (roomCode, playerId) => {
   if (!roomCode || !playerId) return { success: false };
   return removePlayer(roomCode, playerId);
+};
+
+export const kickPlayer = async (roomCode, playerId, kickedBy) => {
+  return removePlayer(roomCode, playerId, { reason: 'kick', kickedBy });
 };
