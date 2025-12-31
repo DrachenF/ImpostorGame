@@ -94,6 +94,10 @@ export const joinRoom = async (roomCode, playerName, avatar) => {
 
     const roomData = roomSnap.data();
 
+    if (roomData.expiresAt && new Date() > new Date(roomData.expiresAt)) {
+      return { success: false, error: 'Sala expirada' };
+    }
+
     if (roomData.status !== 'waiting') {
       return { success: false, error: 'El juego ya comenzó' };
     }
@@ -133,12 +137,11 @@ export const subscribeToRoom = (roomCode, callback) => {
   const unsubscribe = onSnapshot(roomRef, (docSnap) => {
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (data.expiresAt && new Date() > new Date(data.expiresAt)) {
-         deleteRoom(normalizedCode);
-         callback(null);
-         return;
-      }
-      callback(data);
+      const isExpired = Boolean(
+        data.expiresAt && new Date() > new Date(data.expiresAt)
+      );
+
+      callback({ ...data, isExpired });
     } else {
       callback(null);
     }
@@ -331,7 +334,7 @@ export const pruneInactivePlayers = async (roomCode, thresholdMs = 30000) => {
 
     const stalePlayers = players.filter((p) => {
       const seen = getLastSeenMillis(p.lastSeenAt || p.lastSeen);
-      return !p.isKicked && !p.hasLeft && (!seen || now - seen > thresholdMs);
+      return !p.isKicked && !p.hasLeft && seen > 0 && now - seen > thresholdMs;
     });
 
     if (!stalePlayers.length) {

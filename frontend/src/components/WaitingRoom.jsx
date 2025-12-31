@@ -17,6 +17,7 @@ function WaitingRoom() {
   const [isStarting, setIsStarting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [wasKicked, setWasKicked] = useState(false);
+  const [roomExpired, setRoomExpired] = useState(false);
   const playerId = localStorage.getItem('playerId');
   const unsubscribeRef = useRef(null);
   const lastCleanupRef = useRef(0);
@@ -39,6 +40,7 @@ function WaitingRoom() {
   useEffect(() => {
     const unsubscribe = subscribeToRoom(roomCode, (data) => {
       if (data) {
+        setRoomExpired(Boolean(data.isExpired));
         setRoomData(data);
         setLoading(false);
 
@@ -93,7 +95,11 @@ function WaitingRoom() {
     if (!roomData?.expiresAt) return;
     const updateTime = () => {
       const diff = new Date(roomData.expiresAt) - new Date();
-      if (diff <= 0) return setTimeRemaining('Expirada');
+      if (diff <= 0) {
+        setTimeRemaining('Expirada');
+        setRoomExpired(true);
+        return;
+      }
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       setTimeRemaining(`${h}h ${m}m`);
@@ -126,6 +132,14 @@ function WaitingRoom() {
 
   if (loading) return <div className="waiting-room-container"><div className="loading">⏳ Cargando...</div></div>;
   if (!roomData) return <div className="waiting-room-container"><div className="error">⚠️ Sala no encontrada <button onClick={() => navigate('/')}>Salir</button></div></div>;
+
+  if (roomExpired) {
+    return (
+      <div className="waiting-room-container">
+        <div className="error">⚠️ Sala expirada <button onClick={() => navigate('/')}>Salir</button></div>
+      </div>
+    );
+  }
 
   // Incluye voting (como ya lo tenías corregido)
   if (roomData.status === 'playing' || roomData.status === 'voting' || roomData.gameState?.status === 'starting') {

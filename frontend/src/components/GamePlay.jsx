@@ -32,6 +32,11 @@ function GamePlay({ roomId, playerId }) {
       }
 
       const data = docSnap.data();
+      const isExpired = Boolean(
+        data.expiresAt && new Date() > new Date(data.expiresAt)
+      );
+      setRoomExpired(isExpired);
+
       const playersInSnapshot = data.players || [];
       setRoomData({ ...data, players: playersInSnapshot });
 
