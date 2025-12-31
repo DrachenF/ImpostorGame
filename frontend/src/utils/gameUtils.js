@@ -142,10 +142,36 @@ export const initiateVoting = async (roomCode) => {
 
 export const resetGame = async (roomCode) => {
   try {
-    await updateDoc(doc(db, 'rooms', roomCode), {
+    const roomRef = doc(db, 'rooms', roomCode);
+
+    // Traer datos frescos para poder limpiar players correctamente
+    const roomSnap = await getDoc(roomRef);
+    if (!roomSnap.exists()) throw new Error("La sala no existe");
+    const roomData = roomSnap.data();
+
+    const players = (roomData.players || []).map(p => ({
+      ...p,
+      isImpostor: false,
+      word: null,
+      clue: null,
+      isAlive: true
+    }));
+
+    await updateDoc(roomRef, {
       status: 'waiting',
-      gameState: { status: 'waiting' }
+      currentCategory: null,
+      startTime: null,
+      players,
+      gameState: {
+        status: 'waiting',
+        startingPlayerName: null,
+        direction: null,
+        votingPhase: { active: false, showResults: false, votes: {} }
+      }
     });
+
     return { success: true };
-  } catch (error) { return { success: false, error: error.message }; }
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 };

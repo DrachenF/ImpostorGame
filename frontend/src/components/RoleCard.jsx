@@ -84,10 +84,13 @@ function RoleCard({
                 )}
 
                 <p className="instruction-text">
-                  {isImpostorReal
-                    ? '¡Engaña a todos! Nadie sabe que eres tú.'
-                    : 'Encuentra al mentiroso. ¡Haz buenas preguntas!'}
-                </p>
+  {impostorMode
+    ? 'Da tu pista con cuidado: cualquiera podría ser el impostor.'
+    : (isImpostorReal
+        ? '¡Engaña a todos! Nadie sabe que eres tú.'
+        : 'Encuentra al mentiroso. ¡Haz buenas preguntas!')}
+</p>
+
 
                 <div className="turn-info-box">
                   <div className="turn-row">
