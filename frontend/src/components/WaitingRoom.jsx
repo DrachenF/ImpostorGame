@@ -20,10 +20,15 @@ function WaitingRoom() {
 
   // Salida segura
   useEffect(() => {
-    const handleBeforeUnload = () => leaveRoom(roomCode, playerId);
+    const handleBeforeUnload = () => {
+      if (roomData?.status === 'waiting') {
+        leaveRoom(roomCode, playerId);
+      }
+    };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [roomCode, playerId]);
+  }, [roomCode, playerId, roomData]);
 
   // Suscripción a la sala
   useEffect(() => {
