@@ -2,16 +2,14 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-// Configuración de TU base de datos (JuegoPruebas)
 const firebaseConfig = {
-  apiKey: "AIzaSyDtGoAyjkxT6VtzaqTVr9uCb-WGQrizGdAg",
-  authDomain: "juegopruebas-20687.firebaseapp.com",
-  projectId: "juegopruebas-20687",
-  storageBucket: "juegopruebas-20687.firebasestorage.app",
-  messagingSenderId: "73620462400",
-  appId: "1:73620462400:web:92e4539adbfbb9dab1f8a5"
+  apiKey: "AIzaSyBwJYyOflTWcmvhfPVCcKifbgBjXZb1QJA",
+  authDomain: "impostorgame-d25ad.firebaseapp.com",
+  projectId: "impostorgame-d25ad",
+  storageBucket: "impostorgame-d25ad.firebasestorage.app",
+  messagingSenderId: "263591109890",
+  appId: "1:263591109890:web:abf7c0ab0ff5aad95e8e1b"
 };
 
-// Inicializamos la conexión
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
