@@ -7,7 +7,8 @@ import {
   updateDoc,
   arrayUnion,
   onSnapshot,
-  deleteDoc
+  deleteDoc,
+  runTransaction
 } from 'firebase/firestore';
 import { generateRoomCode, generatePlayerId } from './gameUtils';
 import { categories } from './categories';
@@ -48,7 +49,8 @@ export const createRoom = async (hostName, avatar) => {
         avatar: avatar,
         isHost: true,
         isImpostor: false,
-        isAlive: true
+        isAlive: true,
+        joinedAt: Date.now()
       }
     ],
     status: 'waiting',
@@ -105,7 +107,8 @@ export const joinRoom = async (roomCode, playerName, avatar) => {
       avatar: avatar,
       isHost: false,
       isImpostor: false,
-      isAlive: true
+      isAlive: true,
+      joinedAt: Date.now()
     };
 
     await updateDoc(roomRef, {
@@ -163,33 +166,77 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
   try {
     const normalizedCode = normalizeRoomCode(roomCode);
     const roomRef = doc(db, 'rooms', normalizedCode);
-    const roomSnap = await getDoc(roomRef);
+    let result = { success: false };
 
-    if (!roomSnap.exists()) return { success: false, error: 'Sala no encontrada' };
+    await runTransaction(db, async (transaction) => {
+      const roomSnap = await transaction.get(roomRef);
+      if (!roomSnap.exists()) {
+        result = { success: false, error: 'Sala no encontrada' };
+        return;
+      }
 
-    const roomData = roomSnap.data();
-    const remainingPlayers = roomData.players.filter(p => p.id !== playerIdToRemove);
+      const roomData = roomSnap.data();
+      const players = roomData.players || [];
+      const targetPlayer = players.find(p => p.id === playerIdToRemove);
+      if (!targetPlayer) {
+        result = { success: true };
+        return;
+      }
 
-    if (remainingPlayers.length === 0) {
-      await deleteDoc(roomRef);
-      return { success: true, roomDeleted: true };
-    }
+      const remainingPlayers = players.filter(p => p.id !== playerIdToRemove);
 
-    const playerWasHost = roomData.players.some(p => p.id === playerIdToRemove && p.isHost);
-    let newHostId = roomData.host;
-    const updatedPlayers = remainingPlayers.map(p => ({ ...p, isHost: false }));
+      if (remainingPlayers.length === 0) {
+        transaction.delete(roomRef);
+        result = { success: true, roomDeleted: true };
+        return;
+      }
 
-    if (playerWasHost || !remainingPlayers.some(p => p.id === roomData.host)) {
-      newHostId = remainingPlayers[0].id;
-      updatedPlayers[0].isHost = true;
-    } else {
-      const currentHostIndex = updatedPlayers.findIndex(p => p.id === roomData.host);
-      if (currentHostIndex !== -1) updatedPlayers[currentHostIndex].isHost = true;
-    }
+      let updatedPlayers = remainingPlayers.map(p => ({ ...p, isHost: false }));
 
-    await updateDoc(roomRef, { players: updatedPlayers, host: newHostId });
-    return { success: true, newHostId };
+      const hostStillPresent = updatedPlayers.some(p => p.id === roomData.host);
+      const needsNewHost = !hostStillPresent || targetPlayer.isHost;
+      let newHostId = roomData.host;
 
+      if (needsNewHost) {
+        const ordered = [...updatedPlayers].sort((a, b) => {
+          const aJoined = a.joinedAt || 0;
+          const bJoined = b.joinedAt || 0;
+          if (aJoined === bJoined) return a.id.localeCompare(b.id);
+          return aJoined - bJoined;
+        });
+        const candidate = ordered.find(p => !p.hasLeft && !p.isKicked) || ordered[0];
+        if (candidate) {
+          newHostId = candidate.id;
+        }
+      }
+
+      updatedPlayers = updatedPlayers.map(p => ({
+        ...p,
+        isHost: p.id === newHostId
+      }));
+
+      const updates = {
+        players: updatedPlayers,
+        host: newHostId
+      };
+
+      const votingPhase = roomData.gameState?.votingPhase;
+      if (votingPhase?.votes) {
+        const cleanedVotes = {};
+        for (const [voterId, targetId] of Object.entries(votingPhase.votes)) {
+          if (voterId === playerIdToRemove || targetId === playerIdToRemove) continue;
+          if (!remainingPlayers.some(p => p.id === voterId)) continue;
+          if (!remainingPlayers.some(p => p.id === targetId)) continue;
+          cleanedVotes[voterId] = targetId;
+        }
+        updates['gameState.votingPhase.votes'] = cleanedVotes;
+      }
+
+      transaction.update(roomRef, updates);
+      result = { success: true, newHostId };
+    });
+
+    return result;
   } catch (error) {
     console.error('❌ Error eliminando jugador:', error);
     return { success: false, error: error.message };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -6,6 +6,8 @@ import { initiateVoting } from '../utils/gameUtils';
 import { categories } from '../utils/categories';
 import RoleCard from './RoleCard';
 import VotingScreen from './VotingScreen';
+import { removePlayer } from '../utils/firebaseService';
+import { toastInfo } from '../utils/toast';
 import './GamePlay.css';
 
 function GamePlay({ roomId, playerId }) {
@@ -14,6 +16,7 @@ function GamePlay({ roomId, playerId }) {
   const [countdown, setCountdown] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [roomExpired, setRoomExpired] = useState(false);
+  const prevPlayersRef = useRef([]);
 
   // 1. SUSCRIPCIÓN A LA SALA
   useEffect(() => {
@@ -26,7 +29,22 @@ function GamePlay({ roomId, playerId }) {
       }
 
       const data = docSnap.data();
-      setRoomData(data);
+      const playersInSnapshot = data.players || [];
+      setRoomData({ ...data, players: playersInSnapshot });
+
+      if (prevPlayersRef.current.length > 0) {
+        const departed = prevPlayersRef.current.filter(
+          (p) => !playersInSnapshot.some((np) => np.id === p.id)
+        );
+        departed.forEach((p) => {
+          toastInfo(`${p.name} salió de la partida`, {
+            duration: 1800,
+            title: 'Jugador desconectado',
+            closable: false
+          });
+        });
+      }
+      prevPlayersRef.current = playersInSnapshot;
 
       // ✅ Esto deja intacto tu comportamiento original del contador
       if (data.status === 'playing' && countdown === null) {
@@ -90,34 +108,7 @@ function GamePlay({ roomId, playerId }) {
   useEffect(() => {
     const markPlayerAsDisconnected = async () => {
       try {
-        const roomRef = doc(db, 'rooms', roomId);
-        const snap = await getDoc(roomRef);
-        if (!snap.exists()) return;
-
-        const data = snap.data();
-        const isGameActive = data.status === 'playing' || data.status === 'voting';
-        if (!isGameActive) return;
-
-        const players = data.players || [];
-        const me = players.find(p => p.id === playerId);
-        if (!me) return;
-
-        if (me.isAlive === false || me.hasLeft) return;
-
-        const updatedPlayers = players.map(p =>
-          p.id === playerId ? { ...p, isAlive: false, hasLeft: true } : p
-        );
-
-        const updates = { players: updatedPlayers };
-
-        const votes = data.gameState?.votingPhase?.votes;
-        if (votes && votes[playerId]) {
-          const newVotes = { ...votes };
-          delete newVotes[playerId];
-          updates['gameState.votingPhase.votes'] = newVotes;
-        }
-
-        await updateDoc(roomRef, updates);
+        await removePlayer(roomId, playerId);
       } catch (e) {
         console.error('Error marcando salida del jugador:', e);
       }
@@ -174,10 +165,17 @@ function GamePlay({ roomId, playerId }) {
     if (!roomData || !playerData) return;
 
     const currentHost = roomData.players.find(p => p.isHost);
-    if (currentHost && currentHost.isAlive !== false && !currentHost.hasLeft && !currentHost.isKicked) return;
+    if (currentHost && !currentHost.hasLeft && !currentHost.isKicked) return;
 
-    const nextHost = roomData.players.find(
-      p => p.isAlive !== false && !p.isKicked && !p.hasLeft
+    const orderedPlayers = [...roomData.players].sort((a, b) => {
+      const aJoined = a.joinedAt || 0;
+      const bJoined = b.joinedAt || 0;
+      if (aJoined === bJoined) return a.id.localeCompare(b.id);
+      return aJoined - bJoined;
+    });
+
+    const nextHost = orderedPlayers.find(
+      p => !p.isKicked && !p.hasLeft
     );
 
     if (nextHost && nextHost.id === playerId) {
@@ -186,7 +184,7 @@ function GamePlay({ roomId, playerId }) {
         isHost: p.id === playerId
       }));
 
-      updateDoc(doc(db, 'rooms', roomId), { players: updatedPlayers }).catch(
+      updateDoc(doc(db, 'rooms', roomId), { players: updatedPlayers, host: playerId }).catch(
         e => console.error('Error heredando host:', e)
       );
     }
