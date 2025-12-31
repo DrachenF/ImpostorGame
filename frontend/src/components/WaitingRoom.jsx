@@ -1,7 +1,7 @@
 // Frontend/src/components/WaitingRoom.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { subscribeToRoom, updateRoomSettings, removePlayer, leaveRoom } from '../utils/firebaseService';
+import { subscribeToRoom, updateRoomSettings, leaveRoom, kickPlayer, heartbeatPlayer, pruneInactivePlayers, transferHost } from '../utils/firebaseService';
 import { startGame } from '../utils/gameUtils';
 import { toastSuccess, toastError, toastWarning } from '../utils/toast';
 import GameSettings from './GameSettings';
@@ -16,7 +16,11 @@ function WaitingRoom() {
   const [showSettings, setShowSettings] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState('');
+  const [wasKicked, setWasKicked] = useState(false);
+  const [roomExpired, setRoomExpired] = useState(false);
   const playerId = localStorage.getItem('playerId');
+  const unsubscribeRef = useRef(null);
+  const lastCleanupRef = useRef(0);
 
   // Salida segura
   useEffect(() => {
@@ -25,10 +29,18 @@ function WaitingRoom() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [roomCode, playerId]);
 
+  useEffect(() => {
+    return () => {
+      if (!wasKicked) leaveRoom(roomCode, playerId);
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [roomCode, playerId, wasKicked]);
+
   // Suscripción a la sala
   useEffect(() => {
     const unsubscribe = subscribeToRoom(roomCode, (data) => {
       if (data) {
+        setRoomExpired(Boolean(data.isExpired));
         setRoomData(data);
         setLoading(false);
 
@@ -39,15 +51,55 @@ function WaitingRoom() {
         setTimeout(() => { if (!data) setLoading(false); }, 1000);
       }
     });
+    unsubscribeRef.current = unsubscribe;
     return () => unsubscribe();
   }, [roomCode, navigate]);
+
+  useEffect(() => {
+    const beat = () => heartbeatPlayer(roomCode, playerId).catch(() => {});
+    beat();
+    const id = setInterval(beat, 12000);
+    return () => clearInterval(id);
+  }, [roomCode, playerId]);
+
+  useEffect(() => {
+    if (!roomData || wasKicked) return;
+
+    const kickedPlayers = roomData.kickedPlayers || {};
+    const me = roomData.players.find(p => p.id === playerId);
+    const isKicked = kickedPlayers[playerId]?.kicked || me?.isKicked;
+    const missingFromRoom = !me && Object.keys(roomData).length > 0;
+
+    if (isKicked || missingFromRoom) {
+      setWasKicked(true);
+      toastWarning('Has sido expulsado', { duration: 2200, title: 'Expulsado', closable: false });
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      navigate('/');
+    }
+  }, [roomData, playerId, navigate, wasKicked, unsubscribeRef]);
+
+  useEffect(() => {
+    if (!roomData) return;
+    const now = Date.now();
+    if (now - lastCleanupRef.current < 10000) return;
+    const me = roomData.players.find((p) => p.id === playerId && !p.isKicked && !p.hasLeft);
+    const hostMissing = !roomData.players.some((p) => p.id === roomData.host && p.isHost && !p.hasLeft && !p.isKicked);
+    const shouldClean = me && (me.isHost || hostMissing);
+    if (!shouldClean) return;
+    lastCleanupRef.current = now;
+    pruneInactivePlayers(roomCode).catch(() => {});
+  }, [roomData, roomCode, playerId]);
 
   // Temporizador de expiración
   useEffect(() => {
     if (!roomData?.expiresAt) return;
     const updateTime = () => {
       const diff = new Date(roomData.expiresAt) - new Date();
-      if (diff <= 0) return setTimeRemaining('Expirada');
+      if (diff <= 0) {
+        setTimeRemaining('Expirada');
+        setRoomExpired(true);
+        return;
+      }
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       setTimeRemaining(`${h}h ${m}m`);
@@ -69,8 +121,25 @@ function WaitingRoom() {
     catch (e) { setIsStarting(false); toastError('Error iniciando'); }
   };
 
+  const handleTransferHost = async (targetId) => {
+    if (!targetId || targetId === playerId) return;
+    try {
+      await transferHost(roomCode, targetId);
+    } catch (e) {
+      toastError('No se pudo asignar host');
+    }
+  };
+
   if (loading) return <div className="waiting-room-container"><div className="loading">⏳ Cargando...</div></div>;
   if (!roomData) return <div className="waiting-room-container"><div className="error">⚠️ Sala no encontrada <button onClick={() => navigate('/')}>Salir</button></div></div>;
+
+  if (roomExpired) {
+    return (
+      <div className="waiting-room-container">
+        <div className="error">⚠️ Sala expirada <button onClick={() => navigate('/')}>Salir</button></div>
+      </div>
+    );
+  }
 
   // Incluye voting (como ya lo tenías corregido)
   if (roomData.status === 'playing' || roomData.status === 'voting' || roomData.gameState?.status === 'starting') {
@@ -78,6 +147,7 @@ function WaitingRoom() {
   }
 
   const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
+  const visiblePlayers = roomData.players.filter(p => !p.isKicked);
 
   return (
     <div className="waiting-room-container">
@@ -94,9 +164,9 @@ function WaitingRoom() {
         </div>
 
         <div className="players-section">
-          <h3>Jugadores ({roomData.players.length})</h3>
+          <h3>Jugadores ({visiblePlayers.length})</h3>
           <div className="players-list">
-            {roomData.players.map(p => {
+            {visiblePlayers.map(p => {
               const isMe = p.id === playerId;
 
               return (
@@ -107,7 +177,10 @@ function WaitingRoom() {
                   <img src={p.avatar.image} alt="av" className="player-avatar-img"/>
                   <span className="player-name">{p.isHost && '👑'} {p.name} {isMe && '(Tú)'}</span>
                   {isHost && p.id !== playerId && (
-                    <button onClick={() => removePlayer(roomCode, p.id)} className="btn-kick">✕</button>
+                    <div className="player-actions">
+                      <button onClick={() => handleTransferHost(p.id)} className="btn-host-transfer" title="Dar host">👑</button>
+                      <button onClick={() => kickPlayer(roomCode, p.id, playerId)} className="btn-kick">✕</button>
+                    </div>
                   )}
                 </div>
               );

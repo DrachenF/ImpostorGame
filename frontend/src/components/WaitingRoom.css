@@ -151,6 +151,21 @@
   gap: 12px;
 }
 
+.btn-host-transfer {
+  background: #fbbf24;
+  color: #000;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
 .badge-you {
   background: #DC2626;
   color: white;

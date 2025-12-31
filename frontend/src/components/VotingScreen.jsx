@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { removePlayer, kickPlayer, heartbeatPlayer, pruneInactivePlayers, leaveRoom } from '../utils/firebaseService';
+import { toastWarning } from '../utils/toast';
 import './VotingScreen.css';
 
 function VotingScreen({ roomId, playerId, roomData }) {
   const [selectedVote, setSelectedVote] = useState(null);
   const [hasConfirmed, setHasConfirmed] = useState(false);
+  const [kickedNotified, setKickedNotified] = useState(false);
+  const lastCleanupRef = useRef(0);
+  const navigate = useNavigate();
 
   const votingState = roomData.gameState?.votingPhase || {};
   const votes = votingState.votes || {};
@@ -14,13 +20,25 @@ function VotingScreen({ roomId, playerId, roomData }) {
 
   const isHost = roomData.players.find(p => p.id === playerId)?.isHost;
   const myPlayer = roomData.players.find(p => p.id === playerId);
+  const kickedPlayers = roomData.kickedPlayers || {};
+  const isKicked = kickedPlayers[playerId]?.kicked || myPlayer?.isKicked;
 
   const amIAlive =
     myPlayer?.isAlive !== false &&
     !myPlayer?.hasLeft &&
-    !myPlayer?.isKicked;
+    !myPlayer?.isKicked &&
+    !isKicked;
 
   const myVote = votes[playerId];
+
+  useEffect(() => {
+    if (!isKicked && myPlayer) return;
+    if (!kickedNotified) {
+      setKickedNotified(true);
+      toastWarning('Has sido expulsado', { duration: 2200, title: 'Expulsado', closable: false });
+    }
+    navigate('/');
+  }, [isKicked, navigate, myPlayer, kickedNotified]);
 
   useEffect(() => {
     if (myVote) {
@@ -32,43 +50,44 @@ function VotingScreen({ roomId, playerId, roomData }) {
     }
   }, [myVote, hasConfirmed]);
 
+  useEffect(() => {
+    const beat = () => heartbeatPlayer(roomId, playerId).catch(() => {});
+    beat();
+    const id = setInterval(beat, 12000);
+    return () => clearInterval(id);
+  }, [roomId, playerId]);
+
+  useEffect(() => {
+    if (!isHost) return;
+
+    const activePlayerIds = roomData.players
+      .filter(p => !p.isKicked && !p.hasLeft)
+      .map(p => p.id);
+
+    const cleanedVotes = {};
+    let changed = false;
+
+    for (const [voterId, targetId] of Object.entries(votes)) {
+      if (voterId === targetId) { changed = true; continue; }
+      if (!activePlayerIds.includes(voterId) || !activePlayerIds.includes(targetId)) {
+        changed = true;
+        continue;
+      }
+      cleanedVotes[voterId] = targetId;
+    }
+
+    if (changed) {
+      updateDoc(doc(db, 'rooms', roomId), {
+        'gameState.votingPhase.votes': cleanedVotes
+      }).catch(console.error);
+    }
+  }, [votes, isHost, roomData.players, roomId]);
+
   // ✅ AUTO-ELIMINACIÓN + LIMPIEZA DE VOTOS AL SALIR EN VOTACIÓN
   useEffect(() => {
     const markPlayerAsDisconnected = async () => {
       try {
-        const roomRef = doc(db, 'rooms', roomId);
-        const snap = await getDoc(roomRef);
-        if (!snap.exists()) return;
-
-        const data = snap.data();
-        if (data.status !== 'voting') return;
-
-        const players = data.players || [];
-        const me = players.find(p => p.id === playerId);
-        if (!me) return;
-
-        if (me.isAlive === false || me.hasLeft) return;
-
-        // 1) marcar muerto + hasLeft
-        const updatedPlayers = players.map(p => (
-          p.id === playerId ? { ...p, isAlive: false, hasLeft: true } : p
-        ));
-
-        // 2) limpiar votos:
-        // - quitar mi voto
-        // - quitar votos de otros que apunten a mí
-        const currentVotes = data.gameState?.votingPhase?.votes || {};
-        const newVotes = {};
-        for (const [voterId, targetId] of Object.entries(currentVotes)) {
-          if (voterId === playerId) continue;
-          if (targetId === playerId) continue;
-          newVotes[voterId] = targetId;
-        }
-
-        await updateDoc(roomRef, {
-          players: updatedPlayers,
-          'gameState.votingPhase.votes': newVotes
-        });
+        await removePlayer(roomId, playerId);
       } catch (e) {
         console.error('Error marcando salida en votación:', e);
       }
@@ -87,8 +106,27 @@ function VotingScreen({ roomId, playerId, roomData }) {
     };
   }, [roomId, playerId]);
 
+  useEffect(() => {
+    if (!roomData) return;
+    const now = Date.now();
+    if (now - lastCleanupRef.current < 10000) return;
+    const me = roomData.players.find((p) => p.id === playerId && !p.isKicked && !p.hasLeft);
+    const hostMissing = !roomData.players.some((p) => p.id === roomData.host && p.isHost && !p.hasLeft && !p.isKicked);
+    const shouldClean = me && (me.isHost || hostMissing);
+    if (!shouldClean) return;
+    lastCleanupRef.current = now;
+    pruneInactivePlayers(roomId).catch(() => {});
+  }, [roomData, roomId, playerId]);
+
+  useEffect(() => {
+    return () => {
+      if (!kickedNotified) leaveRoom(roomId, playerId);
+    };
+  }, [roomId, playerId, kickedNotified]);
+
   const confirmVote = async () => {
     if (!selectedVote || hasConfirmed || !amIAlive) return;
+    if (selectedVote === playerId) return;
 
     try {
       await updateDoc(doc(db, 'rooms', roomId), {
@@ -104,23 +142,7 @@ function VotingScreen({ roomId, playerId, roomData }) {
   const handleKickPlayer = async (targetId) => {
     if (!window.confirm("¿Sacar a este jugador de la partida permanentemente?")) return;
     try {
-      const updatedPlayers = roomData.players.map(p => {
-        if (p.id === targetId) return { ...p, isAlive: false, isKicked: true };
-        return p;
-      });
-
-      // limpiar votos hacia/desde el kickeado
-      const newVotes = {};
-      for (const [voterId, targetId2] of Object.entries(votes)) {
-        if (voterId === targetId) continue;
-        if (targetId2 === targetId) continue;
-        newVotes[voterId] = targetId2;
-      }
-
-      await updateDoc(doc(db, 'rooms', roomId), {
-        players: updatedPlayers,
-        'gameState.votingPhase.votes': newVotes
-      });
+      await kickPlayer(roomId, targetId, playerId);
     } catch (error) {
       console.error(error);
     }
@@ -214,10 +236,10 @@ function VotingScreen({ roomId, playerId, roomData }) {
             <div key={p.id} className="vote-card-wrapper" style={{ position: 'relative' }}>
               <button
                 onClick={() => amIAlive && !hasConfirmed && canBeVoted && setSelectedVote(p.id)}
-                className={`player-vote-card ${isSelected ? 'selected' : ''} ${(isMe || !amIAlive || !canBeVoted) ? 'disabled' : ''}`}
+                className={`player-vote-card ${isSelected ? 'selected' : ''} ${(isMe || !amIAlive || !canBeVoted) ? 'disabled' : ''} ${isMe ? 'self-card' : ''}`}
                 disabled={hasConfirmed || !amIAlive || !canBeVoted}
                 style={{
-                  opacity: (isDead || hasLeft) ? 0.45 : 1,
+                  opacity: isMe ? 0.35 : (isDead || hasLeft) ? 0.45 : 1,
                   filter: (isDead || hasLeft) ? 'grayscale(1)' : 'none'
                 }}
               >

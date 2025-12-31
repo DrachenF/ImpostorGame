@@ -7,7 +7,9 @@ import {
   updateDoc,
   arrayUnion,
   onSnapshot,
-  deleteDoc
+  deleteDoc,
+  runTransaction,
+  serverTimestamp
 } from 'firebase/firestore';
 import { generateRoomCode, generatePlayerId } from './gameUtils';
 import { categories } from './categories';
@@ -48,7 +50,9 @@ export const createRoom = async (hostName, avatar) => {
         avatar: avatar,
         isHost: true,
         isImpostor: false,
-        isAlive: true
+        isAlive: true,
+        joinedAt: Date.now(),
+        lastSeenAt: serverTimestamp()
       }
     ],
     status: 'waiting',
@@ -90,6 +94,10 @@ export const joinRoom = async (roomCode, playerName, avatar) => {
 
     const roomData = roomSnap.data();
 
+    if (roomData.expiresAt && new Date() > new Date(roomData.expiresAt)) {
+      return { success: false, error: 'Sala expirada' };
+    }
+
     if (roomData.status !== 'waiting') {
       return { success: false, error: 'El juego ya comenzó' };
     }
@@ -105,7 +113,9 @@ export const joinRoom = async (roomCode, playerName, avatar) => {
       avatar: avatar,
       isHost: false,
       isImpostor: false,
-      isAlive: true
+      isAlive: true,
+      joinedAt: Date.now(),
+      lastSeenAt: serverTimestamp()
     };
 
     await updateDoc(roomRef, {
@@ -127,12 +137,11 @@ export const subscribeToRoom = (roomCode, callback) => {
   const unsubscribe = onSnapshot(roomRef, (docSnap) => {
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (data.expiresAt && new Date() > new Date(data.expiresAt)) {
-         deleteRoom(normalizedCode);
-         callback(null);
-         return;
-      }
-      callback(data);
+      const isExpired = Boolean(
+        data.expiresAt && new Date() > new Date(data.expiresAt)
+      );
+
+      callback({ ...data, isExpired });
     } else {
       callback(null);
     }
@@ -159,37 +168,94 @@ export const updateRoomSettings = async (roomCode, settings) => {
 };
 
 // Eliminar jugador
-export const removePlayer = async (roomCode, playerIdToRemove) => {
+export const removePlayer = async (roomCode, playerIdToRemove, options = {}) => {
+  const { reason = 'leave', kickedBy = null } = options;
   try {
     const normalizedCode = normalizeRoomCode(roomCode);
     const roomRef = doc(db, 'rooms', normalizedCode);
-    const roomSnap = await getDoc(roomRef);
+    let result = { success: false };
 
-    if (!roomSnap.exists()) return { success: false, error: 'Sala no encontrada' };
+    await runTransaction(db, async (transaction) => {
+      const roomSnap = await transaction.get(roomRef);
+      if (!roomSnap.exists()) {
+        result = { success: false, error: 'Sala no encontrada' };
+        return;
+      }
 
-    const roomData = roomSnap.data();
-    const remainingPlayers = roomData.players.filter(p => p.id !== playerIdToRemove);
+      const roomData = roomSnap.data();
+      const players = roomData.players || [];
+      const targetPlayer = players.find(p => p.id === playerIdToRemove);
+      if (!targetPlayer) {
+        result = { success: true };
+        return;
+      }
 
-    if (remainingPlayers.length === 0) {
-      await deleteDoc(roomRef);
-      return { success: true, roomDeleted: true };
-    }
+      const remainingPlayers = players.filter(p => p.id !== playerIdToRemove);
 
-    const playerWasHost = roomData.players.some(p => p.id === playerIdToRemove && p.isHost);
-    let newHostId = roomData.host;
-    const updatedPlayers = remainingPlayers.map(p => ({ ...p, isHost: false }));
+      if (remainingPlayers.length === 0) {
+        transaction.delete(roomRef);
+        result = { success: true, roomDeleted: true };
+        return;
+      }
 
-    if (playerWasHost || !remainingPlayers.some(p => p.id === roomData.host)) {
-      newHostId = remainingPlayers[0].id;
-      updatedPlayers[0].isHost = true;
-    } else {
-      const currentHostIndex = updatedPlayers.findIndex(p => p.id === roomData.host);
-      if (currentHostIndex !== -1) updatedPlayers[currentHostIndex].isHost = true;
-    }
+      let updatedPlayers = remainingPlayers.map(p => ({ ...p, isHost: false }));
 
-    await updateDoc(roomRef, { players: updatedPlayers, host: newHostId });
-    return { success: true, newHostId };
+      const hostStillPresent = updatedPlayers.some(p => p.id === roomData.host);
+      const needsNewHost = !hostStillPresent || targetPlayer.isHost;
+      let newHostId = roomData.host;
 
+      if (needsNewHost) {
+        const ordered = [...updatedPlayers].sort((a, b) => {
+          const aJoined = a.joinedAt || 0;
+          const bJoined = b.joinedAt || 0;
+          if (aJoined === bJoined) return a.id.localeCompare(b.id);
+          return aJoined - bJoined;
+        });
+        const candidate = ordered.find(p => !p.hasLeft && !p.isKicked) || ordered[0];
+        if (candidate) {
+          newHostId = candidate.id;
+        }
+      }
+
+      updatedPlayers = updatedPlayers.map(p => ({
+        ...p,
+        isHost: p.id === newHostId
+      }));
+
+      const updates = {
+        players: updatedPlayers,
+        host: newHostId
+      };
+
+      if (reason === 'kick') {
+        const kickedPlayers = roomData.kickedPlayers || {};
+        updates.kickedPlayers = {
+          ...kickedPlayers,
+          [playerIdToRemove]: {
+            kicked: true,
+            kickedAt: Date.now(),
+            kickedBy
+          }
+        };
+      }
+
+      const votingPhase = roomData.gameState?.votingPhase;
+      if (votingPhase?.votes) {
+        const cleanedVotes = {};
+        for (const [voterId, targetId] of Object.entries(votingPhase.votes)) {
+          if (voterId === playerIdToRemove || targetId === playerIdToRemove) continue;
+          if (!remainingPlayers.some(p => p.id === voterId)) continue;
+          if (!remainingPlayers.some(p => p.id === targetId)) continue;
+          cleanedVotes[voterId] = targetId;
+        }
+        updates['gameState.votingPhase.votes'] = cleanedVotes;
+      }
+
+      transaction.update(roomRef, updates);
+      result = { success: true, newHostId };
+    });
+
+    return result;
   } catch (error) {
     console.error('❌ Error eliminando jugador:', error);
     return { success: false, error: error.message };
@@ -199,4 +265,154 @@ export const removePlayer = async (roomCode, playerIdToRemove) => {
 export const leaveRoom = async (roomCode, playerId) => {
   if (!roomCode || !playerId) return { success: false };
   return removePlayer(roomCode, playerId);
+};
+
+export const kickPlayer = async (roomCode, playerId, kickedBy) => {
+  return removePlayer(roomCode, playerId, { reason: 'kick', kickedBy });
+};
+
+const getLastSeenMillis = (value) => {
+  if (!value) return 0;
+  if (typeof value?.toMillis === 'function') return value.toMillis();
+  if (typeof value === 'number') return value;
+  return 0;
+};
+
+const chooseHost = (players, currentHostId, excludedIds = new Set()) => {
+  const ordered = [...players].sort((a, b) => {
+    const aJoined = a.joinedAt || 0;
+    const bJoined = b.joinedAt || 0;
+    if (aJoined === bJoined) return a.id.localeCompare(b.id);
+    return aJoined - bJoined;
+  });
+
+  const candidate = ordered.find(
+    (p) => !p.hasLeft && !p.isKicked && !excludedIds.has(p.id)
+  );
+  return candidate ? candidate.id : currentHostId;
+};
+
+export const heartbeatPlayer = async (roomCode, playerId) => {
+  if (!roomCode || !playerId) return;
+
+  const normalizedCode = normalizeRoomCode(roomCode);
+  const roomRef = doc(db, 'rooms', normalizedCode);
+
+  await runTransaction(db, async (transaction) => {
+    const roomSnap = await transaction.get(roomRef);
+    if (!roomSnap.exists()) return;
+
+    const roomData = roomSnap.data();
+    const players = roomData.players || [];
+    const exists = players.some((p) => p.id === playerId && !p.isKicked && !p.hasLeft);
+    if (!exists) return;
+
+    const updatedPlayers = players.map((p) =>
+      p.id === playerId
+        ? { ...p, lastSeenAt: serverTimestamp(), hasLeft: false }
+        : p
+    );
+
+    transaction.update(roomRef, { players: updatedPlayers });
+  });
+};
+
+export const pruneInactivePlayers = async (roomCode, thresholdMs = 30000) => {
+  if (!roomCode) return { success: false };
+
+  const normalizedCode = normalizeRoomCode(roomCode);
+  const roomRef = doc(db, 'rooms', normalizedCode);
+  let result = { success: false };
+
+  await runTransaction(db, async (transaction) => {
+    const roomSnap = await transaction.get(roomRef);
+    if (!roomSnap.exists()) return;
+
+    const roomData = roomSnap.data();
+    const players = roomData.players || [];
+    const now = Date.now();
+
+    const stalePlayers = players.filter((p) => {
+      const seen = getLastSeenMillis(p.lastSeenAt || p.lastSeen);
+      return !p.isKicked && !p.hasLeft && seen > 0 && now - seen > thresholdMs;
+    });
+
+    if (!stalePlayers.length) {
+      result = { success: true, removed: 0 };
+      return;
+    }
+
+    const staleIds = new Set(stalePlayers.map((p) => p.id));
+    const remainingPlayers = players.filter((p) => !staleIds.has(p.id));
+
+    if (!remainingPlayers.length) {
+      transaction.delete(roomRef);
+      result = { success: true, roomDeleted: true, removed: stalePlayers.length };
+      return;
+    }
+
+    const newHostId = chooseHost(remainingPlayers, roomData.host);
+    const updatedPlayers = remainingPlayers.map((p) => ({
+      ...p,
+      isHost: p.id === newHostId
+    }));
+
+    const updates = {
+      players: updatedPlayers,
+      host: newHostId
+    };
+
+    const votingPhase = roomData.gameState?.votingPhase;
+    if (votingPhase?.votes) {
+      const cleanedVotes = {};
+      for (const [voterId, targetId] of Object.entries(votingPhase.votes)) {
+        if (staleIds.has(voterId) || staleIds.has(targetId)) continue;
+        if (!remainingPlayers.some((p) => p.id === voterId)) continue;
+        if (!remainingPlayers.some((p) => p.id === targetId)) continue;
+        cleanedVotes[voterId] = targetId;
+      }
+      updates['gameState.votingPhase.votes'] = cleanedVotes;
+    }
+
+    transaction.update(roomRef, updates);
+    result = { success: true, removed: stalePlayers.length, newHostId };
+  });
+
+  return result;
+};
+
+export const transferHost = async (roomCode, targetPlayerId) => {
+  if (!roomCode || !targetPlayerId) return { success: false };
+
+  const normalizedCode = normalizeRoomCode(roomCode);
+  const roomRef = doc(db, 'rooms', normalizedCode);
+  let result = { success: false };
+
+  await runTransaction(db, async (transaction) => {
+    const roomSnap = await transaction.get(roomRef);
+    if (!roomSnap.exists()) return;
+
+    const roomData = roomSnap.data();
+    const players = roomData.players || [];
+    const target = players.find(
+      (p) => p.id === targetPlayerId && !p.isKicked && !p.hasLeft
+    );
+    if (!target) {
+      result = { success: false, error: 'Jugador no válido' };
+      return;
+    }
+
+    const updatedPlayers = players.map((p) => ({
+      ...p,
+      isHost: p.id === targetPlayerId
+    }));
+
+    transaction.update(roomRef, {
+      players: updatedPlayers,
+      host: targetPlayerId
+    });
+    result = { success: true, newHostId: targetPlayerId };
+  });
+
+  return result;
 };

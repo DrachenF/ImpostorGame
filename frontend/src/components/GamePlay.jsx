@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -6,6 +6,8 @@ import { initiateVoting } from '../utils/gameUtils';
 import { categories } from '../utils/categories';
 import RoleCard from './RoleCard';
 import VotingScreen from './VotingScreen';
+import { removePlayer, heartbeatPlayer, pruneInactivePlayers, leaveRoom } from '../utils/firebaseService';
+import { toastInfo } from '../utils/toast';
 import './GamePlay.css';
 
 function GamePlay({ roomId, playerId }) {
@@ -14,6 +16,10 @@ function GamePlay({ roomId, playerId }) {
   const [countdown, setCountdown] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [roomExpired, setRoomExpired] = useState(false);
+  const prevPlayersRef = useRef([]);
+  const unsubscribeRef = useRef(null);
+  const [wasKicked, setWasKicked] = useState(false);
+  const lastCleanupRef = useRef(0);
 
   // 1. SUSCRIPCIÓN A LA SALA
   useEffect(() => {
@@ -26,98 +32,80 @@ function GamePlay({ roomId, playerId }) {
       }
 
       const data = docSnap.data();
-      setRoomData(data);
+      const isExpired = Boolean(
+        data.expiresAt && new Date() > new Date(data.expiresAt)
+      );
+      setRoomExpired(isExpired);
+
+      const playersInSnapshot = data.players || [];
+      setRoomData({ ...data, players: playersInSnapshot });
+
+      if (prevPlayersRef.current.length > 0) {
+        const departed = prevPlayersRef.current.filter(
+          (p) => !playersInSnapshot.some((np) => np.id === p.id)
+        );
+        departed.forEach((p) => {
+          toastInfo(`${p.name} salió de la partida`, {
+            duration: 1800,
+            title: 'Jugador desconectado',
+            closable: false
+          });
+        });
+      }
+      prevPlayersRef.current = playersInSnapshot;
 
       // ✅ Esto deja intacto tu comportamiento original del contador
       if (data.status === 'playing' && countdown === null) {
         setCountdown(3);
       }
 
+      const kickedPlayers = data.kickedPlayers || {};
       const currentPlayer = data.players.find(p => p.id === playerId);
-      if (!currentPlayer) {
+      const isKicked = kickedPlayers[playerId]?.kicked || currentPlayer?.isKicked;
+
+      if (!currentPlayer || isKicked) {
+        if (!wasKicked) {
+          setWasKicked(true);
+          toastInfo('Has sido expulsado', { duration: 2200, title: 'Expulsado', closable: false });
+        }
+        unsubscribe();
         navigate('/');
         return;
       }
 
       setPlayerData(currentPlayer);
-
-      if (currentPlayer.isKicked) {
-        navigate('/');
-      }
     });
 
+    unsubscribeRef.current = unsubscribe;
+
     return () => unsubscribe();
-  }, [roomId, playerId, countdown, navigate]);
+  }, [roomId, playerId, countdown, navigate, wasKicked]);
 
   // ✅ PRESENCIA: heartbeat para saber si el jugador sigue con el juego abierto
   useEffect(() => {
-    let intervalId = null;
-
-    const beat = async () => {
-      try {
-        const roomRef = doc(db, 'rooms', roomId);
-        const snap = await getDoc(roomRef);
-        if (!snap.exists()) return;
-
-        const data = snap.data();
-        const players = data.players || [];
-        const me = players.find(p => p.id === playerId);
-        if (!me) return;
-
-        // No marcamos presencia si ya salió / kick / muerto
-        if (me.hasLeft || me.isKicked || me.isAlive === false) return;
-
-        const updatedPlayers = players.map(p =>
-          p.id === playerId ? { ...p, lastSeen: Date.now() } : p
-        );
-
-        await updateDoc(roomRef, { players: updatedPlayers });
-      } catch (e) {
-        // silencioso
-      }
-    };
-
-    // primer beat inmediato
+    const beat = () => heartbeatPlayer(roomId, playerId).catch(() => {});
     beat();
-    intervalId = setInterval(beat, 8000); // cada 8s
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
+    const intervalId = setInterval(beat, 12000);
+    return () => clearInterval(intervalId);
   }, [roomId, playerId]);
+
+  useEffect(() => {
+    if (!roomData) return;
+    const now = Date.now();
+    if (now - lastCleanupRef.current < 10000) return;
+    const me = roomData.players.find((p) => p.id === playerId && !p.isKicked && !p.hasLeft);
+    const hostMissing = !roomData.players.some((p) => p.id === roomData.host && p.isHost && !p.hasLeft && !p.isKicked);
+    const shouldClean = me && (me.isHost || hostMissing);
+    if (!shouldClean) return;
+    lastCleanupRef.current = now;
+    pruneInactivePlayers(roomId).catch(() => {});
+  }, [roomData, roomId, playerId]);
 
   // 🚨 2. AUTO-ELIMINACIÓN SOLO AL SALIR REAL 🚨
   useEffect(() => {
     const markPlayerAsDisconnected = async () => {
       try {
-        const roomRef = doc(db, 'rooms', roomId);
-        const snap = await getDoc(roomRef);
-        if (!snap.exists()) return;
-
-        const data = snap.data();
-        const isGameActive = data.status === 'playing' || data.status === 'voting';
-        if (!isGameActive) return;
-
-        const players = data.players || [];
-        const me = players.find(p => p.id === playerId);
-        if (!me) return;
-
-        if (me.isAlive === false || me.hasLeft) return;
-
-        const updatedPlayers = players.map(p =>
-          p.id === playerId ? { ...p, isAlive: false, hasLeft: true } : p
-        );
-
-        const updates = { players: updatedPlayers };
-
-        const votes = data.gameState?.votingPhase?.votes;
-        if (votes && votes[playerId]) {
-          const newVotes = { ...votes };
-          delete newVotes[playerId];
-          updates['gameState.votingPhase.votes'] = newVotes;
-        }
-
-        await updateDoc(roomRef, updates);
+        await removePlayer(roomId, playerId);
       } catch (e) {
         console.error('Error marcando salida del jugador:', e);
       }
@@ -132,9 +120,15 @@ function GamePlay({ roomId, playerId }) {
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload);
       window.removeEventListener('pagehide', onPageHide);
-      // ❌ NO llamar markPlayerAsDisconnected aquí
     };
   }, [roomId, playerId]);
+
+  useEffect(() => {
+    return () => {
+      if (!wasKicked) leaveRoom(roomId, playerId);
+      if (unsubscribeRef.current) unsubscribeRef.current();
+    };
+  }, [roomId, playerId, wasKicked]);
 
   // 3. ÁRBITRO (FIN DE PARTIDA)
   useEffect(() => {
@@ -174,10 +168,17 @@ function GamePlay({ roomId, playerId }) {
     if (!roomData || !playerData) return;
 
     const currentHost = roomData.players.find(p => p.isHost);
-    if (currentHost && currentHost.isAlive !== false && !currentHost.hasLeft && !currentHost.isKicked) return;
+    if (currentHost && !currentHost.hasLeft && !currentHost.isKicked) return;
 
-    const nextHost = roomData.players.find(
-      p => p.isAlive !== false && !p.isKicked && !p.hasLeft
+    const orderedPlayers = [...roomData.players].sort((a, b) => {
+      const aJoined = a.joinedAt || 0;
+      const bJoined = b.joinedAt || 0;
+      if (aJoined === bJoined) return a.id.localeCompare(b.id);
+      return aJoined - bJoined;
+    });
+
+    const nextHost = orderedPlayers.find(
+      p => !p.isKicked && !p.hasLeft
     );
 
     if (nextHost && nextHost.id === playerId) {
@@ -186,7 +187,7 @@ function GamePlay({ roomId, playerId }) {
         isHost: p.id === playerId
       }));
 
-      updateDoc(doc(db, 'rooms', roomId), { players: updatedPlayers }).catch(
+      updateDoc(doc(db, 'rooms', roomId), { players: updatedPlayers, host: playerId }).catch(
         e => console.error('Error heredando host:', e)
       );
     }

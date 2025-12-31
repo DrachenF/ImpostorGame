@@ -67,6 +67,10 @@
   border-color: #D1D5DB;
 }
 
+.player-vote-card.self-card {
+  opacity: 0.35;
+}
+
 .player-vote-card.selected {
   border-color: #DC2626;
   background: #FEE2E2;
